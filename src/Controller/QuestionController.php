@@ -51,7 +51,6 @@ class QuestionController extends AbstractController
                 // save the history and reset the reponses for the next quizz
                 $session->set('history', $history);
                 $session->set('reponses', []);
-
                 return $this->render('question/resultat.html.twig', [
                     'score' => $score,
                     'total' => $total,

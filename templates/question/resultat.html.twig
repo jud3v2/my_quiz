@@ -4,17 +4,37 @@
 
 {% block body %}
 
-    <div class="container">
-        <div class="row">
+    <div>
+        <div class="row my-10">
             <div class="col-md-12">
-                <h1 class="text-center">Résultat du Quizz: {{ name }}</h1>
-                <h2 class="text-center">Bonjour </h2>
-                <h3 class="text-center">Vous avez obtenu {{ score }} / {{ total }}</h3>
-                <div class="text-center">
-                    <a href="{{ path('quizz', {id: quizzId}) }}" class="text-center mx-auto w-1/2 bg-blue-500 hover:bg-blue-700 text-white font-bold py-2 px-4 rounded hover:shadow-sm">Refaire le Quizz</a>
+                <div
+                        class="bg-zinc-50 px-6 py-20 text-center text-surface dark:bg-neutral-700 dark:text-white">
+                    <h1 class="mb-6 text-5xl font-bold">Résultat du Quizz: {{ name }}</h1>
+                    <h3 class="mb-8 text-3xl font-bold">Vous avez obtenu {{ score }} / {{ total }}</h3>
+                </div>
+                <div class="flex justify-between">
+                    <a href="{{ path('quizz', {id: quizzId}) }}" class="text-center mx-auto bg-blue-500 hover:bg-blue-700 text-white font-bold py-2 px-4 rounded hover:shadow-sm">Refaire le Quizz</a>
+                    <a href="{{ path('app_home') }}" class="text-center mx-auto bg-blue-500 hover:bg-blue-700 text-white font-bold py-2 px-4 rounded hover:shadow-sm">Accueil</a>
                 </div>
             </div>
             <!---Faire en sorte d'afficher chaque question ainsi que les réponse de l'utilisateur -->
+            <div class="col-md-12 mt-10">
+                <div class="bg-zinc-50 px-6 py-20 text-center text-surface dark:bg-neutral-700 dark:text-white">
+                    <h1 class="mb-10 text-5xl font-bold">Vos Réponses</h1>
+                    <div>
+                        {% for reponse in reponses %}
+                            <div class="mb-3 border hover:shadow-sm rounded">
+                                <h3 class="mb-3 text-3xl font-bold">{{ reponse.question }}</h3>
+                                <p class="mb-3 text-xl font-bold {{ reponse.user_reponse is same as reponse.expected ? 'text-green-500' : 'text-red-500' }}">Votre réponse: {{ reponse.user_reponse }}</p>
+                                <p class="mb-3 text-xl font-bold">Réponse attendue: {{ reponse.expected }}</p>
+                            </div>
+                        {% endfor %}
+                    </div>
+
+                    <div class="flex justify-between my-10">
+                        <a href="{{ path('quizz', {id: quizzId}) }}" class="text-center mx-auto bg-blue-500 hover:bg-blue-700 text-white font-bold py-2 px-4 rounded hover:shadow-sm">Refaire le Quizz</a>
+                        <a href="{{ path('app_home') }}" class="text-center mx-auto bg-blue-500 hover:bg-blue-700 text-white font-bold py-2 px-4 rounded hover:shadow-sm">Accueil</a>
+                    </div>
         </div>
     </div>
 
