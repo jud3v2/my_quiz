@@ -1,0 +1,43 @@
+{% extends 'base.html.twig' %}
+
+{% block title %}Hello HistoryController!{% endblock %}
+
+{% block body %}
+    <div
+            class="bg-zinc-50 px-6 py-20 text-center text-surface dark:bg-neutral-700 dark:text-white">
+        <h1 class="mb-6 text-5xl font-bold">Votre Historique Au Quizz</h1>
+        <h3 class="mb-8 text-3xl font-bold">Vous pouvez consulter vos résultats à vos précedent quiz</h3>
+    </div>
+    <div class="container mx-auto">
+        {% for h in history %}
+
+            <div class="bg-zinc-50 px-6 py-20 text-center text-surface dark:bg-neutral-700 dark:text-white border rounded hover:shadow-sm my-3">
+                <h1 class="mb-6 text-5xl font-bold text-gray-700">Quiz {{ h.quizz }}</h1>
+                <h3 class="mb-8 text-3xl font-bold text-gray-700">Score: {{ h.score }} / {{ h.total }}</h3>
+                <hr class="my-5">
+                <h3 class="mb-8 text-3xl font-bold text-gray-700">Vos Réponses</h3>
+                <div class="container mx-auto">
+                    <details>
+                        <summary class="text-gray-500 font-bold mb-3">Vos réponses apportées au quizz {{ h.quizz }}</summary>
+                        {% for reponse in h.reponses %}
+                            <div class="mb-3 border hover:shadow-sm rounded">
+                                <h3 class="mb-3 text-3xl font-bold text-gray-700">{{ reponse.question }}</h3>
+                                <p class="mb-3 text-xl font-bold {{ reponse.user_reponse is same as reponse.expected ? 'text-green-500' : 'text-red-500' }}">Votre réponse: {{ reponse.user_reponse }}</p>
+                                <p class="mb-3 text-xl font-bold text-gray-600">Réponse attendue: {{ reponse.expected }}</p>
+                            </div>
+                        {% endfor %}
+                    </details>
+                </div>
+            </div>
+
+        {% endfor %}
+
+        {% if history is empty %}
+            <div class="bg-zinc-50 px-6 py-20 text-center text-surface dark:bg-neutral-700 dark:text-white border rounded hover:shadow-sm my-3">
+                <h1 class="mb-6 text-5xl font-bold text-gray-700">Aucun historique</h1>
+                <h3 class="mb-8 text-3xl font-bold text-gray-700">Vous n'avez pas encore participé à un quizz</h3>
+            </div>
+        {% endif %}
+
+    </div>
+{% endblock %}

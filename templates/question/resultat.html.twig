@@ -24,9 +24,9 @@
                     <div>
                         {% for reponse in reponses %}
                             <div class="mb-3 border hover:shadow-sm rounded">
-                                <h3 class="mb-3 text-3xl font-bold">{{ reponse.question }}</h3>
+                                <h3 class="mb-3 text-3xl font-bold text-gray-700">{{ reponse.question }}</h3>
                                 <p class="mb-3 text-xl font-bold {{ reponse.user_reponse is same as reponse.expected ? 'text-green-500' : 'text-red-500' }}">Votre réponse: {{ reponse.user_reponse }}</p>
-                                <p class="mb-3 text-xl font-bold">Réponse attendue: {{ reponse.expected }}</p>
+                                <p class="mb-3 text-xl font-bold text-gray-600">Réponse attendue: {{ reponse.expected }}</p>
                             </div>
                         {% endfor %}
                     </div>

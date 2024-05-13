@@ -17,6 +17,7 @@ class QuestionController extends AbstractController
                 $session = $request->getSession();
                 $reponses = $session->get('reponses', []);
                 $savedResponses = $reponses;
+                $quizzId = $reponses[0]['categorie'];
                 // check if we have a reponse session if not we will redirect to home with a info message to tell user the reponses are stored in history
                 // because the session reponse has been cleared
                 if (!$reponses) {
@@ -43,9 +44,10 @@ class QuestionController extends AbstractController
                 $history = $session->get('history', []);
 
                 $history[] = [
+                    'reponses' => $reponses,
                     'score' => $score,
                     'total' => $total,
-                    'reponses' => $reponses,
+                    'date' => new \DateTime(),
                 ];
 
                 // save the history and reset the reponses for the next quizz
@@ -54,7 +56,7 @@ class QuestionController extends AbstractController
                 return $this->render('question/resultat.html.twig', [
                     'score' => $score,
                     'total' => $total,
-                    'quizzId' => $reponse['categorie'],
+                    'quizzId' => $quizzId,
                     'name' => $quizz->getName(),
                     'reponses' => $savedResponses,
                 ]);
