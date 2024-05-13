@@ -3,27 +3,39 @@
 {% block title %}Quizz | {{ name }}{% endblock %}
 
 {% block body %}
-    <h1 class="text-center text-4xl font-bold my-5">Question au quizz : {{ name }}</h1>
-    <div class="flex justify-center">
-        <div class="w-1/2">
-            <form action="{{ currentQuestion is same as maxQuestionsId ? path('quizz', {'id': categorieId}) : path('quizz', {'id': categorieId}) }}" method="post">
-                <input type="hidden" name="token" value="{{ csrf_token('reponse_form') }}">
-                <input type="hidden" name="next_question" value="{{ nextQuestion }}">
-                <input type="hidden" name="question" value="{{ questions[currentQuestion].question.question }}">
-                <div class="mb-4">
-                    <h2 class="block text-gray-700 font-bold text-xl mb-2">Question {{ currentQuestion }}: {{ questions[currentQuestion].question.question }}</h2>
-                    <hr class="my-5">
-                    <p class="block text-gray-700 font-bold text-md mb-2">Sélectionner votre réponse:</p>
-                         {% for reponse in questions[currentQuestion].reponses %}
+    <div
+            class="bg-zinc-50 px-6 py-20 text-center text-surface dark:bg-neutral-700 dark:text-white">
+        <h1 class="mb-6 text-5xl font-bold">Questions pour le quizz</h1>
+        <h3 class="mb-8 text-3xl font-bold">{{ name }}</h3>
+    </div>
+    <div class="container mx-auto my-10">
+        <div class="flex justify-center">
+            <div class="w-1/2">
+                <form action="{{ currentQuestion is same as maxQuestionsId ? path('quizz', {'id': categorieId}) : path('quizz', {'id': categorieId}) }}"
+                      method="post">
+                    <input type="hidden" name="token" value="{{ csrf_token('reponse_form') }}">
+                    <input type="hidden" name="next_question" value="{{ nextQuestion }}">
+                    <input type="hidden" name="question" value="{{ questions[currentQuestion].question.question }}">
+                    <div class="mb-4">
+                        <h2 class="block text-gray-700 font-bold text-xl mb-2">Question {{ currentQuestion }} / {{ maxQuestionsId }}
+                            : {{ questions[currentQuestion].question.question }}</h2>
+                        <hr class="my-5">
+                        <p class="block text-gray-700 font-bold text-md mb-2">Sélectionner votre réponse:</p>
+                        {% for reponse in questions[currentQuestion].reponses %}
                             <div class="mb-3">
-                                <input name="reponse" id="reponse_{{ reponse.id }}" type="radio" value="{{ reponse.reponse }}" />
-                                <label for="reponse_{{ reponse.id }}" class="text-gray-700 font-bold">{{ reponse.reponse }}</label><br>
+                                <input name="reponse" id="reponse_{{ reponse.id }}" type="radio"
+                                       value="{{ reponse.reponse }}"/>
+                                <label for="reponse_{{ reponse.id }}"
+                                       class="text-gray-700 font-bold">{{ reponse.reponse }}</label><br>
                             </div>
                         {% endfor %}
-                </div>
-                <div class="flex justify-center my-5">
-                    <button type="submit" class="bg-blue-500 hover:bg-blue-700 text-white font-bold py-2 px-4 rounded focus:outline-none focus:shadow-outline">{{ currentQuestion is same as maxQuestionsId ? 'Valider et terminer le questionnaire' : 'Valider et passer à la prochaine question' }}</button>
-                </div>
-            </form>
+                    </div>
+                    <div class="flex justify-center my-5">
+                        <button type="submit"
+                                class="bg-blue-500 hover:bg-blue-700 text-white font-bold py-2 px-4 rounded focus:outline-none focus:shadow-outline">{{ currentQuestion is same as maxQuestionsId ? 'Valider et terminer le questionnaire' : 'Valider et passer à la prochaine question' }}</button>
+                    </div>
+                </form>
+            </div>
         </div>
+    </div>
 {% endblock %}

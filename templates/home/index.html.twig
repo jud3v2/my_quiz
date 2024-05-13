@@ -1,14 +1,26 @@
 {% extends 'base.html.twig' %}
 
-{% block title %}Home{% endblock %}
+{% block title %}Accueil{% endblock %}
 
 {% block body %}
+    <div
+            class="bg-zinc-50 px-6 py-20 text-center text-surface dark:bg-neutral-700 dark:text-white">
+        <h1 class="mb-6 text-5xl font-bold">Veuillez sélectionnez votre quizz</h1>
+        <h3 class="mb-8 text-3xl font-bold">Amuser vous avec nos quizz fait par la communautés</h3>
+        <a
+                class="p-3 text-white text-xl font-bold rounded bg-blue-700"
+                data-twe-ripple-init
+                data-twe-ripple-color="light"
+                href="#!"
+                role="button"
+        >Se connecter</a
+        >
+    </div>
 <div class="container mx-auto">
-<h1 class="text-3xl font-bold text-center my-8">Welcome to My Quizz Project</h1>
     {% for category in categories %}
-        <div class="my-4">
+        <div class="my-4 grid grid-cols-2 gap-4 border rounded p-4 hover:shadow-sm">
             <h2 class="text-2xl font-bold">{{ category.name }}</h2>
-            <a href="{{ path('quizz', {'id': category.id}) }}" class="bg-blue-500 hover:bg-blue-700 text-white font-bold py-2 px-4 rounded">Start Quizz</a>
+            <a href="{{ path('quizz', {'id': category.id}) }}" class="text-center mx-auto w-1/2 bg-blue-500 hover:bg-blue-700 text-white font-bold py-2 px-4 rounded hover:shadow-sm">Commencer le quizz</a>
         </div>
     {% endfor %}
 <p class="text-center"></p>

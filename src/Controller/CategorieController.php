@@ -41,6 +41,9 @@ class CategorieController extends AbstractController
                             'question' => $question,
                             'reponses' => $reponses[$question->getId()],
                         ];
+
+                        // mélange les réponses pour chaque question afin d'évitée que les réponses soit toujours dans le même ordre
+                        shuffle($questionWithResponse[$question->getId()]['reponses']);
                 }
 
                 // la première question
@@ -51,6 +54,18 @@ class CategorieController extends AbstractController
 
                 // TODO: faire en sorte de pouvoir stocker les réponses de l'utilisateur  dans la base de données si il est connecté
                 if($request->isMethod('POST')) {
+                        // Si l'utilisateur n'a pas répondu à la question ont va lui afficher un message d'erreur
+                        if($request->request->get('question') === null || $request->request->get('reponse') === null) {
+                                $this->addFlash('error', 'Veuillez répondre à la question');
+                                return $this->render('categorie/index.html.twig', [
+                                    'questions' => $questionWithResponse,
+                                    'currentQuestion' => $nextQuestion - 1 ?? $firstQuestionId,
+                                    'nextQuestion' => $nextQuestion -1 ?? $firstQuestionId,
+                                    'maxQuestionsId' => end($questionWithResponse)['question']->getId(),
+                                    'categorieId' => $categorie->getId(),
+                                    'name' => $categorie->getName(),
+                                ]);
+                        }
                         // récupère la session
                         $session = $request->getSession();
 

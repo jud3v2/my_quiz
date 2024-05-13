@@ -1,13 +1,12 @@
 <!DOCTYPE html>
-<html>
-    <head>
-        <meta charset="UTF-8">
-        <title>My Quizz - {% block title %}{% endblock %}</title>
-        <script src="https://cdn.tailwindcss.com"></script>
-        {% block stylesheets %}
-        {% endblock %}
-    </head>
+<html lang="fr">
+    {{ include('partials/_head.html.twig') }}
+    {{ include('partials/_header.html.twig') }}
     <body>
-        {% block body %}{% endblock %}
+    {{ include('partials/_flash_messages.html.twig') }}
+        {% block body %}
+
+        {% endblock %}
     </body>
+    {{ include('partials/_footer.html.twig') }}
 </html>
