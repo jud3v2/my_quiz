@@ -64,4 +64,9 @@ class Reponse
 
         return $this;
     }
+
+        public function getCorrect()
+        {
+                return $this->reponse_expected;
+        }
 }

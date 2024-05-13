@@ -51,18 +51,45 @@ class CategorieController extends AbstractController
 
                 // TODO: faire en sorte de pouvoir stocker les réponses de l'utilisateur  dans la base de données si il est connecté
                 if($request->isMethod('POST')) {
+                        // récupère la session
                         $session = $request->getSession();
 
+                        // récupère les données de l'utilisateur si jamais il n'est pas connecté
                         $reponses = $session->get('reponses', []);
+
+                        // build de l'objet de réponse
                         $reponses[] = [
                             'categorie' => $categorie->getId(),
                             'question' => $request->request->get('question'),
                             'user_reponse' => $request->request->get('reponse'),
                             'expected' => $this->expected($questionWithResponse, $nextQuestion)
                         ];
+
+                        // sauvegarde dans la session
                         $session->set('reponses', $reponses);
+
+                        // on check si on est à la fin du quizz, si oui on redirect vers la page de résultat
+                        if($nextQuestion > end($questionWithResponse)['question']->getId()) {
+                            return $this->redirectToRoute('question.resultat', [
+                                'id' => $categorie->getId(),
+                                'reponses' => $reponses,
+                                'questions' => $questionWithResponse,
+                                'name' => $categorie->getName()
+                            ]);
+                        }
                 }
 
+                // permet de fix un bug.
+                // Quand on commence un quizz et que la question n'est pas à un $nextQuestion est égal à
+                // 1 au lieu de ne pas avoir de valeur
+                // de ce fait si il est égal à 1 on le fix à la première question
+                // même si la firstQuestion seras égal à 1 on le fix à 1
+                if($nextQuestion === 1) {
+                        $nextQuestion = $firstQuestionId;
+                }
+
+                // on retourne la vue avec toutes les données nécessaires.
+                // sans afficher les réponses attendu dans le html
                 return $this->render('categorie/index.html.twig', [
                     'questions' => $questionWithResponse,
                     'currentQuestion' => $nextQuestion ?? $firstQuestionId,   // récupère la question actuelle
@@ -73,7 +100,14 @@ class CategorieController extends AbstractController
                 ]);
         }
 
-        private function expected($questionWithResponse, $nextQuestion)
+
+        /**
+         * Permet de savoir qu'elle réponse est attendu pour la question demandé si inconnu retourne false dans tous les autres cas.
+         * @param $questionWithResponse
+         * @param $nextQuestion
+         * @return string|false
+         */
+        private function expected($questionWithResponse, $nextQuestion): string|false
         {
                 foreach ($questionWithResponse[$nextQuestion - 1]['reponses'] as $reponse) {
                         if ($reponse->reponse_expected === true) {
