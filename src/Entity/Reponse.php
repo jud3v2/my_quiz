@@ -19,10 +19,10 @@ class Reponse
     private ?int $id_question = null;
 
     #[ORM\Column(length: 255)]
-    private ?string $reponse = null;
+    public ?string $reponse = null;
 
     #[ORM\Column]
-    private ?bool $reponse_expected = null;
+    public ?bool $reponse_expected = null;
 
     public function getId(): ?int
     {
