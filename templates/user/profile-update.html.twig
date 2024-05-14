@@ -4,18 +4,55 @@
     <div class="col-md-12">
         <div
                 class="bg-zinc-50 px-6 py-20 text-center text-surface dark:bg-neutral-700 dark:text-white">
-            <h1 class="mb-6 text-4xl font-bold text-gray-700">Profile de l'utilisateur</h1>
+            <h1 class="mb-6 text-4xl font-bold text-gray-700">Modification de vos informations personnels</h1>
             <h3 class="mb-8 text-2xl font-bold text-gray-500">{{ user.username }}</h3>
-            <a href="{{ path('user.update_profile') }}">
-                <button class="p-2 rounded text-white bg-blue-500">
-                    Modifier les informations du profile
-                </button>
-            </a>
         </div>
+    </div>
+
+    <div class="container mx-auto mt-10">
+        {% form_theme form 'tailwind_2_layout.html.twig' %}
+        {{ form_start(form) }}
+        {{ form_row(form.username, {
+            attr: {
+                placeholder: 'Modifier votre nom d\'utilisateur',
+                class: 'w-full p-2 mb-4 border border-gray-300 rounded text-gray-800',
+            },
+            type: 'text',
+            label: 'Nouveau nom d\'utilisateur',
+            label_attr: {
+                class: 'block text-gray-700 font-bold mb-2'
+            }
+        }) }}
+        {{ form_row(form.firstname, {
+            attr: {
+                placeholder: 'Modifier votre nom prénom',
+                class: 'w-full p-2 mb-4 border border-gray-300 rounded text-gray-800',
+            },
+            type: 'text',
+            label: 'Renseigner votre prénom',
+            label_attr: {
+                class: 'block text-gray-700 font-bold mb-2'
+            }
+        }) }}
+        {{ form_row(form.lastname, {
+            attr: {
+                placeholder: 'Modifier votre nom',
+                class: 'w-full p-2 mb-4 border border-gray-300 rounded text-gray-800',
+            },
+            type: 'text',
+            label: 'Renseigner votre nom',
+            label_attr: {
+                class: 'block text-gray-700 font-bold mb-2'
+            }
+        }) }}
+        <button type="submit" class="text-white font-bold rounded p-2 bg-blue-500">
+            <span>Modifier mon profile</span>
+        </button>
+        {{ form_end(form) }}
     </div>
 {% endblock %}
 
 {% block title %}
-    Modification de votre profile {{ user.username }}
+    Modification de votre mot de passe {{ user.username }}
 {% endblock %}
 

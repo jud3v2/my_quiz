@@ -135,9 +135,16 @@ class UserController extends AbstractController
         }
 
         #[Route('/user/update/profile', name: 'user.update_profile')]
-        public function formForProfile(): Response
+        public function formForProfile(Request $request, EntityManagerInterface $em): Response
         {
                 $form = $this->createForm(UpdateProfileFormType::class, $this->getUser());
+                $form->handleRequest($request);
+
+                if($form->isSubmitted() && $form->isValid()) {
+                        $em->flush();
+                        $this->addFlash('success', 'Votre profil a été mis à jour.');
+                        return $this->redirectToRoute('user.profile');
+                }
 
                 return $this->render('user/profile-update.html.twig', [
                         'form' => $form->createView(),
