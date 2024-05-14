@@ -1,0 +1,36 @@
+{% extends 'base.html.twig' %}
+
+{% block title %}Log in!{% endblock %}
+
+{% block body %}
+    <form method="post" action="{{ path('app_login') }}">
+        <h1 class="text-center text-2xl font-bold my-5">Page de connexion</h1>
+        <div class="container mx-auto">
+            <label for="username">Username</label>
+            <input type="text" value="{{ last_username }}" name="_username" id="username" class="border w-full rounded p-2 mb-5" autocomplete="username" required autofocus>
+            <label for="password">Password</label>
+            <input type="password" name="_password" id="password" class="border w-full rounded p-2" autocomplete="current-password" required>
+
+            <input type="hidden" name="_csrf_token"
+                   value="{{ csrf_token('authenticate') }}"
+            >
+        </div>
+
+        {#
+            Uncomment this section and add a remember_me option below your firewall to activate remember me functionality.
+            See https://symfony.com/doc/current/security/remember_me.html
+
+            <div class="checkbox mb-3">
+                <label>
+                    <input type="checkbox" name="_remember_me"> Remember me
+                </label>
+            </div>
+        #}
+
+        <div class="container mx-auto mt-3">
+            <button class="text-center font-bold text-white rounded bg-blue-500 p-2" type="submit">
+                Se connecter
+            </button>
+        </div>
+    </form>
+{% endblock %}

@@ -58,6 +58,24 @@
                    class: 'w-full rounded p-2'
                }
            }) }}
+       {{ form_row(registrationForm.created_at, {
+           label: '',
+           label_attr: {
+               class: 'hidden'
+           },
+       }) }}
+       {{ form_row(registrationForm.updated_at, {
+           label: '',
+              label_attr: {
+                class: 'hidden'
+              },
+       }) }}
+       {{ form_row(registrationForm.uuid, {
+              label: '',
+              label_attr: {
+                class: 'hidden'
+              },
+       }) }}
        <button type="submit" class="rounded p-2 text-white font-bold bg-blue-500 hover:bg-blue-700 shadow-sm hover:shadow">S'enregistrer</button>
        {{ form_end(registrationForm) }}
    </div>

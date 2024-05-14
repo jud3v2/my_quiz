@@ -39,3 +39,13 @@
         </div>
     {% endif %}
 {% endfor %}
+{% if error is defined and error is not null %}
+    <div class="bg-red-100 border border-red-400 text-red-700 px-4 py-3 rounded relative m-3" role="alert">
+    <strong class="font-bold">Informations</strong>
+    <ul>
+            <li>
+                <span class="block sm:inline">{{ error.messageKey|trans(error.messageData, 'security') }}</span>
+            </li>
+    </ul>
+    </div>
+{% endif %}
