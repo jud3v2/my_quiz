@@ -16,14 +16,16 @@ class QuestionController extends AbstractController
         {
                 $session = $request->getSession();
                 $reponses = $session->get('reponses', []);
-                $savedResponses = $reponses;
-                $quizzId = $reponses[0]['categorie'];
+
                 // check if we have a reponse session if not we will redirect to home with a info message to tell user the reponses are stored in history
                 // because the session reponse has been cleared
                 if (!$reponses) {
                         $this->addFlash('info', "Veuillez vérifier votre historique les réponses y ont été stockées.");
                         return $this->redirectToRoute('app_home');
                 }
+
+                $savedResponses = $reponses;
+                $quizzId = $reponses[0]['categorie'];
 
                 $score = 0;
                 $total = 0;

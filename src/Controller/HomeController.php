@@ -18,7 +18,7 @@ class HomeController extends AbstractController
             $user = $this->getUser();
             $categories = $entityManager->getRepository(Categorie::class)->findAll();
             
-            if($user->isVerified() == false){
+            if($user && $user->isVerified() == false){
                     $session = ($r->getSession())->get('has_verified_email');
                     if($session == null){
                         $this->addFlash('info', 'Veuillez confirmer votre adresse email');
