@@ -21,7 +21,7 @@ class HomeController extends AbstractController
             if($user && $user->isVerified() == false){
                     $session = ($r->getSession())->get('has_verified_email');
                     if($session == null){
-                        $this->addFlash('info', 'Veuillez confirmer votre adresse email');
+                        $this->addFlash('info', "Veuillez confirmer votre adresse email sur votre page de profile");
                         $r->getSession()->set('has_verified_email', false);
                     }
             }
