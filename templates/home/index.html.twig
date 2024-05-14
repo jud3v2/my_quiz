@@ -7,14 +7,19 @@
             class="bg-zinc-50 px-6 py-20 text-center text-surface dark:bg-neutral-700 dark:text-white">
         <h1 class="mb-6 text-5xl font-bold">Veuillez sélectionnez votre quizz</h1>
         <h3 class="mb-8 text-3xl font-bold">Amuser vous avec nos quizz fait par la communautés</h3>
-        <a
-                class="p-3 text-white text-xl font-bold rounded bg-blue-700"
-                data-twe-ripple-init
-                data-twe-ripple-color="light"
-                href="#!"
-                role="button"
-        >Se connecter</a
-        >
+        {% if app.user %}
+            <a
+                    class="p-3 text-white text-xl font-bold rounded bg-blue-700"
+                    data-twe-ripple-init
+                    data-twe-ripple-color="light"
+                    href="#!"
+                    role="button">Créer un quizz</a>
+        {% else %}
+            <a href="{{ path('app_login') }}"
+               class="bg-blue-500 hover:bg-blue-700 text-white font-bold py-2 px-4 rounded hover:shadow-sm">Se connecter</a>
+            <a href="{{ path('app_register') }}"
+               class="bg-blue-500 hover:bg-blue-700 text-white font-bold py-2 px-4 rounded hover:shadow-sm">S'inscrire</a>
+        {% endif %}
     </div>
 <div class="container mx-auto">
     {% for category in categories %}
