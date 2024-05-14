@@ -1,0 +1,21 @@
+{% extends 'base.html.twig' %}
+
+{% block body %}
+    <div class="col-md-12">
+        <div
+                class="bg-zinc-50 px-6 py-20 text-center text-surface dark:bg-neutral-700 dark:text-white">
+            <h1 class="mb-6 text-4xl font-bold text-gray-700">Profile de l'utilisateur</h1>
+            <h3 class="mb-8 text-2xl font-bold text-gray-500">{{ user.username }}</h3>
+            <a href="{{ path('user.update_profile') }}">
+                <button class="p-2 rounded text-white bg-blue-500">
+                    Modifier les informations du profile
+                </button>
+            </a>
+        </div>
+    </div>
+{% endblock %}
+
+{% block title %}
+    Modification de votre profile {{ user.username }}
+{% endblock %}
+

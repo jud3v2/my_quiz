@@ -6,7 +6,7 @@
                 class="bg-zinc-50 px-6 py-20 text-center text-surface dark:bg-neutral-700 dark:text-white">
             <h1 class="mb-6 text-4xl font-bold text-gray-700">Profile de l'utilisateur</h1>
             <h3 class="mb-8 text-2xl font-bold text-gray-500">{{ user.username }}</h3>
-            <a href="">
+            <a href="{{ path('user.update_profile') }}">
                 <button class="p-2 rounded text-white bg-blue-500">
                     Modifier les informations du profile
                 </button>
@@ -18,7 +18,7 @@
                 class="bg-zinc-50 px-6 py-20 text-center text-surface dark:bg-neutral-700 dark:text-white">
             <h1 class="mb-6 text-4xl font-bold text-gray-700">Modification de l'adresse email</h1>
             <h3 class="mb-8 text-2xl font-bold text-gray-500">{{ user.email }}</h3>
-            <a href="">
+            <a href="{{ path('user.update_email') }}">
                 <button class="p-2 rounded text-white bg-blue-500">
                     Modifier l'adresse email
                 </button>
@@ -30,7 +30,7 @@
                 class="bg-zinc-50 px-6 py-20 text-center text-surface dark:bg-neutral-700 dark:text-white">
             <h1 class="mb-6 text-4xl font-bold text-gray-700">Modification de mon mot de passe</h1>
             <h3 class="mb-8 text-2xl font-bold text-gray-500">{{ '********' }}</h3>
-            <a href="">
+            <a href="{{ path('user.update_password') }}">
                 <button class="p-2 rounded text-white bg-blue-500">
                     Modifier le mot de passe
                 </button>
@@ -56,7 +56,7 @@
                 class="bg-zinc-50 px-6 py-20 text-center text-surface dark:bg-neutral-700 dark:text-white">
             <h1 class="mb-6 text-4xl font-bold text-gray-700">Zone dangereuse</h1>
             <h3 class="mb-8 text-2xl font-bold text-gray-500">{{ '********' }}</h3>
-            <a href="">
+            <a href="{{ path('user.delete') }}">
                 <button class="p-2 rounded text-white bg-red-500">
                     Suppression du compte
                 </button>
