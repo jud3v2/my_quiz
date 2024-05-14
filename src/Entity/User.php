@@ -3,6 +3,8 @@
 namespace App\Entity;
 
 use App\Repository\UserRepository;
+use Doctrine\Common\Collections\ArrayCollection;
+use Doctrine\Common\Collections\Collection;
 use Doctrine\ORM\Mapping as ORM;
 use Symfony\Bridge\Doctrine\Validator\Constraints\UniqueEntity;
 use Symfony\Component\Security\Core\User\PasswordAuthenticatedUserInterface;
@@ -53,6 +55,24 @@ class User implements UserInterface, PasswordAuthenticatedUserInterface
 
         #[ORM\Column]
         private ?bool $isVerified = false;
+
+        /**
+         * @var Collection<int, UserHistory>
+         */
+        #[ORM\OneToMany(targetEntity: UserHistory::class, mappedBy: 'user', orphanRemoval: true)]
+        private Collection $userHistories;
+
+        /**
+         * @var Collection<int, UserReponse>
+         */
+        #[ORM\OneToMany(targetEntity: UserReponse::class, mappedBy: 'user', orphanRemoval: true)]
+        private Collection $userReponses;
+
+        public function __construct()
+        {
+            $this->userHistories = new ArrayCollection();
+            $this->userReponses = new ArrayCollection();
+        }
 
         public function getId(): ?int
         {
@@ -216,6 +236,66 @@ class User implements UserInterface, PasswordAuthenticatedUserInterface
         public function setVerified(bool $isVerified): static
         {
             $this->isVerified = $isVerified;
+
+            return $this;
+        }
+
+        /**
+         * @return Collection<int, UserHistory>
+         */
+        public function getUserHistories(): Collection
+        {
+            return $this->userHistories;
+        }
+
+        public function addUserHistory(UserHistory $userHistory): static
+        {
+            if (!$this->userHistories->contains($userHistory)) {
+                $this->userHistories->add($userHistory);
+                $userHistory->setUser($this);
+            }
+
+            return $this;
+        }
+
+        public function removeUserHistory(UserHistory $userHistory): static
+        {
+            if ($this->userHistories->removeElement($userHistory)) {
+                // set the owning side to null (unless already changed)
+                if ($userHistory->getUser() === $this) {
+                    $userHistory->setUser(null);
+                }
+            }
+
+            return $this;
+        }
+
+        /**
+         * @return Collection<int, UserReponse>
+         */
+        public function getUserReponses(): Collection
+        {
+            return $this->userReponses;
+        }
+
+        public function addUserReponse(UserReponse $userReponse): static
+        {
+            if (!$this->userReponses->contains($userReponse)) {
+                $this->userReponses->add($userReponse);
+                $userReponse->setUser($this);
+            }
+
+            return $this;
+        }
+
+        public function removeUserReponse(UserReponse $userReponse): static
+        {
+            if ($this->userReponses->removeElement($userReponse)) {
+                // set the owning side to null (unless already changed)
+                if ($userReponse->getUser() === $this) {
+                    $userReponse->setUser(null);
+                }
+            }
 
             return $this;
         }
