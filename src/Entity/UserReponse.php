@@ -27,7 +27,7 @@ class UserReponse
     #[ORM\Column(length: 255)]
     private ?string $answer = null;
 
-    #[ORM\OneToOne(cascade: ['persist', 'remove'])]
+    #[ORM\ManyToOne(cascade: ['persist', 'remove'])]
     #[ORM\JoinColumn(nullable: false)]
     private ?Question $question = null;
 
@@ -125,4 +125,16 @@ class UserReponse
 
         return $this;
     }
+
+        public function fill(array $data): static
+        {
+                $this->setUser($data['user']);
+                $this->setHistory($data['history']);
+                $this->setQuestion($data['question']);
+                $this->setExpected($data['expected']);
+                $this->setAnswer($data['answer']);
+                $this->setCreatedAt(new \DateTimeImmutable());
+                $this->setUpdatedAt(new \DateTimeImmutable());
+                return $this;
+        }
 }

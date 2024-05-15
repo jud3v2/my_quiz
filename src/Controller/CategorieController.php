@@ -52,7 +52,6 @@ class CategorieController extends AbstractController
                 // si la requête est de type POST, cela signifie que l'utilisateur a répondu à une question on incrémente la question suivante
                 $nextQuestion = (int) $request->request->get('next_question') + 1;
 
-                // TODO: faire en sorte de pouvoir stocker les réponses de l'utilisateur  dans la base de données si il est connecté
                 if($request->isMethod('POST')) {
                         // Si l'utilisateur n'a pas répondu à la question ont va lui afficher un message d'erreur
                         if($request->request->get('question') === null || $request->request->get('reponse') === null) {
@@ -77,7 +76,8 @@ class CategorieController extends AbstractController
                             'categorie' => $categorie->getId(),
                             'question' => $request->request->get('question'),
                             'user_reponse' => $request->request->get('reponse'),
-                            'expected' => $this->expected($questionWithResponse, $nextQuestion)
+                            'question_id' => $request->request->get('question_id'),
+                            'expected' => $this->expected($questionWithResponse, $nextQuestion),
                         ];
 
                         // sauvegarde dans la session

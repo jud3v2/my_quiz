@@ -10,6 +10,7 @@ use App\Security\EmailVerifier;
 use Doctrine\ORM\EntityManagerInterface;
 use Symfony\Bridge\Twig\Mime\TemplatedEmail;
 use Symfony\Bundle\FrameworkBundle\Controller\AbstractController;
+use Symfony\Bundle\SecurityBundle\Security;
 use Symfony\Component\HttpFoundation\RedirectResponse;
 use Symfony\Component\HttpFoundation\Request;
 use Symfony\Component\HttpFoundation\Response;
@@ -153,12 +154,17 @@ class UserController extends AbstractController
         }
 
         #[Route('/user/delete', name: 'user.delete')]
-        public function deleteUser(EntityManagerInterface $em): RedirectResponse
+        public function deleteUser(EntityManagerInterface $em, Security $security): RedirectResponse
         {
-                $em->remove($this->getUser());
+                $user = $this->getUser();
+                // logout the user in on the current firewall
+                // disable the csrf logout
+                $security->logout(false);
+
+                $em->remove($user);
                 $em->flush();
 
                 $this->addFlash('success', 'Votre compte a été supprimé.');
-                return $this->redirectToRoute('app_logout');
+                return $this->redirectToRoute('app_home');
         }
 }

@@ -3,6 +3,10 @@
 namespace App\Controller;
 
 use App\Entity\Categorie;
+use App\Entity\Question;
+use App\Entity\User;
+use App\Entity\UserHistory;
+use App\Entity\UserReponse;
 use Doctrine\ORM\EntityManagerInterface;
 use Symfony\Bundle\FrameworkBundle\Controller\AbstractController;
 use Symfony\Component\HttpFoundation\Request;
@@ -24,7 +28,6 @@ class QuestionController extends AbstractController
                         return $this->redirectToRoute('app_home');
                 }
 
-                $savedResponses = $reponses;
                 $quizzId = $reponses[0]['categorie'];
 
                 $score = 0;
@@ -42,25 +45,72 @@ class QuestionController extends AbstractController
                         $total++;
                 }
 
-                // get previous history of quizz for no connected users
-                $history = $session->get('history', []);
+                if ($user = $this->getUser()) {
+                        $quizz = $entityManager->getRepository(Categorie::class)
+                            ->find($quizzId);
+                        return $this->createUserHistories($user, $quizz, $reponses, $score, $total, $entityManager);
+                } else {
+                        // get previous history of quizz for no connected users
+                        $history = $session->get('history', []);
 
-                $history[] = [
-                    'reponses' => $reponses,
+                        $history[] = [
+                            'reponses' => $reponses,
+                            'score' => $score,
+                            'total' => $total,
+                            'date' => new \DateTime(),
+                        ];
+
+                        // save the history and reset the reponses for the next quizz
+                        $session->set('history', $history);
+                        $session->set('reponses', []);
+
+                        return $this->render('question/resultat.html.twig', [
+                            'score' => $score,
+                            'total' => $total,
+                            'quizzId' => $quizzId,
+                            'name' => trim($quizz->getName()),
+                            'reponses' => $reponses,
+                        ]);
+                }
+        }
+
+        private function createUserHistories(User $user, Categorie $quizz, array $reponses, int $score, int $total, EntityManagerInterface $em)
+        {
+                $_ = [
                     'score' => $score,
                     'total' => $total,
-                    'date' => new \DateTime(),
+                    'date' => new \DateTimeImmutable(),
+                    'quizz' => $quizz,
+                    'user' => $user,
+                    'reponses' => $reponses,
                 ];
 
-                // save the history and reset the reponses for the next quizz
-                $session->set('history', $history);
-                $session->set('reponses', []);
+                $history = (new UserHistory())->fill($_);
+
+                $em->persist($history);
+                $em->flush();
+
+                foreach ($_['reponses'] as $reponse) {
+                        $_reponse = [
+                            'user' => $user,
+                            'history' => $history,
+                            'question' => $em->getRepository(Question::class)
+                                ->find($reponse['question_id']),
+                            'answer' => $reponse['user_reponse'],
+                            'expected' => $reponse['expected'],
+                        ];
+
+                        $reponseToBePersisted = (new UserReponse())->fill($_reponse);
+                        $em->persist($reponseToBePersisted);
+                        $em->flush();
+                }
+
                 return $this->render('question/resultat.html.twig', [
                     'score' => $score,
                     'total' => $total,
-                    'quizzId' => $quizzId,
-                    'name' => $quizz->getName(),
-                    'reponses' => $savedResponses,
+                    'quizzId' => $quizz->getId(),
+                    'name' => trim($quizz->getName()),
+                    'reponses' => $reponses,
                 ]);
         }
 }

@@ -16,6 +16,7 @@
                     <input type="hidden" name="token" value="{{ csrf_token('reponse_form') }}">
                     <input type="hidden" name="next_question" value="{{ nextQuestion }}">
                     <input type="hidden" name="question" value="{{ questions[currentQuestion].question.question }}">
+                    <input type="hidden" name="question_id" value="{{ questions[currentQuestion].question.id }}">
                     <div class="mb-4">
                         <h2 class="block text-gray-700 font-bold text-xl mb-2">Question {{ currentQuestion }} / {{ maxQuestionsId }}
                             : {{ questions[currentQuestion].question.question }}</h2>

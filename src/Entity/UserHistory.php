@@ -25,9 +25,9 @@ class UserHistory
     #[ORM\JoinColumn(nullable: false)]
     private ?User $user = null;
 
-    #[ORM\OneToOne(cascade: ['persist', 'remove'])]
+    #[ORM\ManyToOne(cascade: ['persist', 'remove'])]
     #[ORM\JoinColumn(nullable: false)]
-    private ?Categorie $quizz = null;
+    public ?Categorie $quizz = null;
 
     /**
      * @var Collection<int, UserReponse>
@@ -152,4 +152,16 @@ class UserHistory
 
         return $this;
     }
+
+        public function fill(array $data): static
+        {
+                $this->setScore($data['score']);
+                $this->setTotal($data['total']);
+                $this->setUser($data['user']);
+                $this->setQuizz($data['quizz']);
+                $this->setCreatedAt($data['date']);
+                $this->setUpdatedAt($data['date']);
+
+                return $this;
+        }
 }
