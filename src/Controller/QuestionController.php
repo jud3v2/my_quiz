@@ -48,6 +48,8 @@ class QuestionController extends AbstractController
                 if ($user = $this->getUser()) {
                         $quizz = $entityManager->getRepository(Categorie::class)
                             ->find($quizzId);
+                        // clear session reponses
+                        $session->set('reponses', []);
                         return $this->createUserHistories($user, $quizz, $reponses, $score, $total, $entityManager);
                 } else {
                         // get previous history of quizz for no connected users
