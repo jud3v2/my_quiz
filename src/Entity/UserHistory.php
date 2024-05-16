@@ -2,11 +2,14 @@
 
 namespace App\Entity;
 
+use AllowDynamicProperties;
 use App\Repository\UserHistoryRepository;
 use Doctrine\Common\Collections\ArrayCollection;
 use Doctrine\Common\Collections\Collection;
 use Doctrine\ORM\Mapping as ORM;
 
+
+#[AllowDynamicProperties] // i will set this to true to allow dynamic properties for set user_reponses in the index method of HistoryController for connected users
 #[ORM\Entity(repositoryClass: UserHistoryRepository::class)]
 class UserHistory
 {
