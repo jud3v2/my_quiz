@@ -1,0 +1,78 @@
+{% extends 'base.html.twig' %}
+
+{% block title %}Création D'un Nouveau Quizz{% endblock %}
+
+{% block body %}
+    <div
+            class="bg-zinc-50 px-6 py-20 text-center text-surface dark:bg-neutral-700 dark:text-white">
+        <h1 class="mb-6 text-5xl font-bold">Création d'un nouveau quizz</h1>
+        <p class="text-lg">Créez un nouveau quizz en remplissant le formulaire ci-dessous</p>
+        <p class="text-lg">La création de quizz requiert un minimum de 10 questions associées à leur réponse </p>
+    </div>
+    <div class="container mx-auto">
+        <div>
+            <form action="{{ path('quizz.create.post') }}" method="POST">
+                <div class="my-3">
+                    <label for="name" class="text-md font-bold text-gray-700">
+                        Nom du quizz
+                    </label>
+                    <input type="text" name="name" id="name" class="w-full border border-gray-300 p-2 rounded-md"
+                           required>
+                </div>
+
+                <div class="my-5">
+                    {% for i in 0..9 %}
+                        <div class="my-3">
+                            <label for="question" class="text-md font-bold text-gray-700">
+                                Question {{ i + 1 }}
+                            </label>
+                            <input min="10" minlength="10" aria-valuemin="1" maxlength="255" max="255" aria-valuemax="255" type="text" name="question_{{ i + 1 }}" id="question"
+                                   class="w-full border border-gray-300 p-2 rounded-md" required>
+                        </div>
+                        <div class="container pl-10 mx-auto my-10">
+                            {% for j in 0..2 %}
+                                <div class="row">
+                                    <div class="my-3">
+                                        <label for="answers_question_{{ i + 1 }}[]"
+                                               class="text-md font-bold text-gray-700">
+                                            {{ j + 1 }} Réponse possible pour la question: {{ i + 1 }}
+                                        </label>
+                                        <input min="1" minlength="1" aria-valuemin="1" max="255" maxlength="255" aria-valuemax="255" type="text" name="answers_question_{{ i + 1 }}[]"
+                                               id="answers_question_{{ i + 1 }}[]"
+                                               class="w-full border border-gray-300 p-2 rounded-md" required>
+                                    </div>
+                                </div>
+                            {% endfor %}
+                            <div class="mt-3 mb-5">
+                                <label for="correct_answers_question_{{ i + 1 }}"
+                                       class="text-md font-bold text-gray-700">
+                                    Réponse attendue pour la question: {{ i + 1 }}
+                                </label>
+                                <select name="correct_answers_question_{{ i + 1 }}"
+                                        id="correct_answers_question_{{ i + 1 }}"
+                                        class="w-full border border-gray-300 p-2 rounded rounded-md" required>
+                                    <option value="1" selected>1</option>
+                                    <option value="2">2</option>
+                                    <option value="3">3</option>
+                                </select>
+                            </div>
+                        </div>
+                    {% endfor %}
+                </div>
+
+                <div class="flex float-left">
+                    <button type="reset"
+                            class="bg-red-500 text-surface dark:bg-neutral-700 text-white px-4 py-2 rounded-md">
+                        Réinitialiser le formulaire
+                    </button>
+                </div>
+                <div class="flex float-right">
+                    <button type="submit"
+                            class="bg-blue-500 text-surface dark:bg-neutral-700 text-white px-4 py-2 rounded-md">Créer
+                        le quizz
+                    </button>
+                </div>
+            </form>
+        </div>
+    </div>
+{% endblock %}
