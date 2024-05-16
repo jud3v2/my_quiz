@@ -76,7 +76,7 @@ class QuestionController extends AbstractController
                 }
         }
 
-        private function createUserHistories(User $user, Categorie $quizz, array $reponses, int $score, int $total, EntityManagerInterface $em)
+        private function createUserHistories(User $user, Categorie $quizz, array $reponses, int $score, int $total, EntityManagerInterface $em): Response
         {
                 $_ = [
                     'score' => $score,
