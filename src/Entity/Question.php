@@ -4,10 +4,8 @@ namespace App\Entity;
 
 use App\Repository\QuestionRepository;
 use Doctrine\ORM\Mapping as ORM;
-use Symfony\UX\Turbo\Attribute\Broadcast;
 
 #[ORM\Entity(repositoryClass: QuestionRepository::class)]
-#[Broadcast]
 class Question
 {
     #[ORM\Id]
