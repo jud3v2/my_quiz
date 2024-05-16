@@ -7,6 +7,7 @@ use App\Entity\Question;
 use App\Entity\Reponse;
 use Doctrine\ORM\EntityManagerInterface;
 use Symfony\Bundle\FrameworkBundle\Controller\AbstractController;
+use Symfony\Component\HttpFoundation\RedirectResponse;
 use Symfony\Component\HttpFoundation\Response;
 use Symfony\Component\Routing\Attribute\Route;
 use Symfony\Component\HttpFoundation\Request;
@@ -131,5 +132,114 @@ class CategorieController extends AbstractController
                 }
 
                 return false;
+        }
+
+        #[Route('/create/quizz', name: 'quizz.create')]
+        public function showCreateCategorieForm(): RedirectResponse|Response
+        {
+                // vérifie que l'utilisateur est bien connecté
+                if($this->getUser() === null) {
+                        // si non on le redirige vers la page de connexion avec un message
+                        $this->addFlash('info', 'Vous devez être connecté afin de pouvoir créer un quizz.');
+                        return $this->redirectToRoute('app_login');
+                } else {
+
+                        // ici on vérifie que l'utilisateur à bien vérifié son compte avant de le rediriger vers la page de création de quizz
+                        if($this->getUser()->isVerified()) {
+                                return $this->render('categorie/create-quizz.html.twig');
+                        }
+
+                        // sinon on le redirige sur la page de son profile afin que il puisse valider son compte
+                        $this->addFlash('info', "Merci de bien vouloir vérifier votre compte avant de pouvoir créer un quizz.");
+                        return $this->redirectToRoute('user.profile');
+                }
+        }
+
+        #[Route('/create/quizz/store', name: 'quizz.create.post', methods: ['POST'])]
+        public function storeQuizz(Request $request, EntityManagerInterface $em): RedirectResponse
+        {
+                // récupère l'utilisateur connecté qui va créer le quizz
+                $user = $this->getUser();
+
+                // initialisation du tableau de données
+                $data = [];
+
+                // boucle sur les 10 questions afin de remplir le tableau de données
+                for ($i = 1; $i <=  10; $i++) {
+                        $data[] = [
+                            'question' => $request->request->get('question_' . $i),
+                            'reponses' => $request->request->all('answers_question_' . $i),
+                            'reponse_expected' => $request->request->get('correct_answers_question_' . $i),
+                        ];
+                }
+
+                // Création de la catégorie car les relations en auront besoin plus tard (id)
+                $quizz = new Categorie();
+                $quizz->setName($request->request->get('name'));
+                $quizz->setUser($user);
+
+                $em->persist($quizz);
+                $em->flush();
+                // initialisation des tableaux des données créés en cas d'erreur on les supprime afin de ne pas polluer la BDD
+                $createdQuestion = [];
+                $createdReponse = [];
+
+                try { // handle error
+
+                        // store questions & reponses
+                        foreach ($data as $value) {
+                                // Création de la question
+                                $question = new Question();
+                                $question->setQuestion(trim($value['question']));
+                                $question->setIdCategorie($quizz->getId());
+
+                                $em->persist($question); // persister les data en BDD
+                                $em->flush();
+
+                                $createdQuestion[] = $question;
+
+                                // boucle sur chaque réponse de la question associée
+                                foreach ($value['reponses'] as $key => $v) {
+                                        $reponse = new Reponse();
+                                        $reponse->setReponse(trim($v));
+
+                                        /*
+                                         * Vérifie si la réponse est la bonne réponse, car le champ attendu est de type boolean
+                                         * */
+                                        $reponse->setReponseExpected(
+                                            ((int) $value['reponse_expected'] - 1) === $key
+                                        );
+                                        $reponse->setIdQuestion($question->getId());
+
+                                        $em->persist($reponse);
+
+                                        // store de la réponse en cas d'erreur, on supprime les données enregistrées
+                                        $createdReponse[] = $reponse;
+                                }
+                        }
+
+                        $em->flush();
+                } catch (\Exception $e) {
+                        // remove created quizz
+                        $em->remove($quizz);
+                        $em->flush();
+
+                        // suppression des questions et réponses créées
+                        foreach ($createdReponse as $r) {
+                                $em->remove($r);
+                                $em->flush();
+                        }
+
+                        foreach ($createdQuestion as $q) {
+                                $em->remove($q);
+                                $em->flush();
+                        }
+
+                        $this->addFlash('error', "Erreur lors de la création du quizz");
+                        return $this->redirectToRoute('app_home');
+                }
+
+                $this->addFlash('success', 'Quizz créé avec succès');
+                return $this->redirectToRoute('quizz', ['id' => $quizz->getId()]);
         }
 }
