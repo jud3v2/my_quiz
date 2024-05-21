@@ -6,6 +6,7 @@ use App\Entity\Categorie;
 use App\Entity\Question;
 use App\Entity\Reponse;
 use App\Entity\User;
+use App\Entity\UserHistory;
 use App\Form\AdminCreateUserFormType;
 use App\Form\AdminUserFormType;
 use Doctrine\ORM\EntityManagerInterface;
@@ -180,11 +181,83 @@ class AdminController extends AbstractController
             statusCode: 403,
             exceptionCode: 403
         )]
-        public function adminGestionDesQuizzEtCategorie(): Response
+        public function adminGestionDesQuizzEtCategorie(EntityManagerInterface $em): Response
         {
+                $quizz = $em->getRepository(Categorie::class)->findAll();
+
                 return $this->render('admin/admin-quizz-categorie.html.twig', [
-                    'quizz' => ''
+                    'quizz' => $quizz
                 ]);
+        }
+
+        #[Route('/update/quizz/{id}', name: 'admin.quizz.categorie.edit')]
+        #[IsGranted(
+            attribute: 'ROLE_ADMIN',
+            message: "Vous n'avez pas les autorisation nécessaires pour cette action",
+            statusCode: 403,
+            exceptionCode: 403
+        )]
+        public function adminGestionDuQuizz(Categorie $categorie, EntityManagerInterface $em, Request $request): Response|RedirectResponse
+        {
+                $reponses = [];
+                $question = $em->getRepository(Question::class)->findBy(['id_categorie' => $categorie->getId()]);
+
+                foreach ($question as $q) {
+                    $reponses[] = $em->getRepository(Reponse::class)->findBy(['id_question' => $q->getId()]);
+                }
+
+                return $this->render('admin/admin-quizz-edit.html.twig', [
+                    'quizz' => $categorie,
+                        'question' => $question,
+                        'reponse' => $reponses
+                ]);
+        }
+
+        #[Route('/admin/quizz/{id}/delete', name: 'admin.quizz.delete.page')]
+        #[IsGranted(
+            attribute: 'ROLE_ADMIN',
+            message: "Vous n'avez pas les autorisation nécessaires pour cette action",
+            statusCode: 403,
+            exceptionCode: 403
+        )]
+        public function adminDeleteQuizzPage(Categorie $categorie): Response
+        {
+                return $this->render('admin/admin-quizz-delete.html.twig', [
+                    'quizz' => $categorie
+                ]);
+        }
+
+        #[Route('/admin/quizz/{id}/delete/confirmed', name: 'admin.quizz.delete')]
+        #[IsGranted(
+            attribute: 'ROLE_ADMIN',
+            message: "Vous n'avez pas les autorisation nécessaires pour cette action",
+            statusCode: 403,
+            exceptionCode: 403
+        )]
+        public function adminDeleteQuizz(Categorie $categorie, EntityManagerInterface $em): RedirectResponse
+        {
+                $savedName = $categorie->getName();
+                $userHistory = $em->getRepository(UserHistory::class)->findBy(['quizz' => $categorie->getId()]);
+                $question = $em->getRepository(Question::class)->findBy(['id_categorie' => $categorie->getId()]);
+                $reponse = $em->getRepository(Reponse::class)->findBy(['id_question' => $question]);
+
+                foreach ($reponse as $r) {
+                        $em->remove($r);
+                }
+
+                foreach ($question as $q) {
+                    $em->remove($q);
+                }
+
+                foreach ($userHistory as $uh) {
+                        $em->remove($uh);
+                }
+
+                $em->remove($categorie);
+                $em->flush();
+
+                $this->addFlash('success', "Le quizz: {$savedName} a bien été supprimé.");
+                return new RedirectResponse($this->generateUrl('admin.quizz.categorie'));
         }
 
         #[Route('/admin/email', name: 'admin.emailing')]

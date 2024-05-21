@@ -6,9 +6,59 @@
     <div>
         <div
                 class="bg-zinc-50 px-6 py-20 text-center text-surface dark:bg-neutral-700 dark:text-white">
-            <h1 class="mb-6 text-5xl font-bold">Administration gestion des quizz & catégorie</h1>
+            <h3 class="text-3xl font-semibold">Gestion des quizz</h3>
         </div>
-        <div>
+        <div class="container mx-auto my-5">
+            <a href="{{ path('quizz.create') }}">
+                <button class="bg-blue-500 text-white font-bold rounded p-2">
+                    Ajouter un quizz
+                </button>
+            </a>
+        </div>
+        <div class="container mx-auto my-5">
+            <div class="relative overflow-x-auto">
+                <table class="w-full text-sm text-left rtl:text-right text-gray-500 dark:text-gray-400">
+                    <thead class="text-xs text-gray-700 uppercase bg-gray-50 dark:bg-gray-700 dark:text-gray-400">
+                    <tr>
+                        <th scope="col" class="px-6 py-3">
+                            ID
+                        </th>
+                        <th scope="col" class="px-6 py-3">
+                            Nom
+                        </th>
+                        <th scope="col" class="px-6 py-3 text-center">
+                            Actions
+                        </th>
+                    </tr>
+                    </thead>
+                    <tbody>
+                    {% for quiz in quizz %}
+                        <tr class="bg-white border-b dark:bg-gray-800 dark:border-gray-700">
+                            <th scope="row" class="px-6 py-4 font-semibold text-gray-700 whitespace-nowrap dark:text-white">
+                                {{ quiz.getId }}
+                            </th>
+                            <td class="px-6 py-4">
+                                {{ quiz.getName }}
+                            </td>
+                            <td class="px-6 py-4 flex justify-center gap-3">
+                                <a href="{{ path('admin.quizz.categorie.edit', {id: quiz.getId}) }}">
+                                    <button class="bg-blue-500 rounded-md p-1 text-white">
+                                        modification
+                                    </button>
+                                </a>
+                               {% if quiz.canDelete %}
+                                <a href="{{ path('admin.quizz.delete.page', {id: quiz.getId}) }}">
+                                    <button class="bg-red-500 rounded-md p-1 text-white">
+                                        suppression
+                                    </button>
+                                </a>
+                                {% endif %}
+                            </td>
+                        </tr>
+                    {% endfor %}
+                    </tbody>
+                </table>
+            </div>
 
         </div>
     </div>

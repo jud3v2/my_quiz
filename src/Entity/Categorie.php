@@ -52,4 +52,9 @@ class Categorie
 
         return $this;
     }
+
+        public function canDelete(): bool
+        {
+                return (bool) $this->getOwner();
+        }
 }

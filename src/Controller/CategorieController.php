@@ -136,7 +136,8 @@ class CategorieController extends AbstractController
         }
 
         #[Route('/create/quizz', name: 'quizz.create')]
-        public function showCreateCategorieForm(): RedirectResponse|Response
+        #[IsGranted('QUIZ_CREATE', subject: 'categorie')]
+        public function showCreateCategorieForm(Categorie $categorie): RedirectResponse|Response
         {
                 // check si l'utilisateur est vérifier ou tout simplement si il est autorisé à créer un quiz
                 $this->denyAccessUnlessGranted('QUIZ_CREATE',
@@ -256,13 +257,62 @@ class CategorieController extends AbstractController
                 return $this->redirectToRoute('quizz', ['id' => $quizz->getId()]);
         }
 
-        public function update()
+        #[Route('/quizz/{id}/update', name: 'quizz.update.post')]
+        #[IsGranted('QUIZ_UPDATE', subject: 'categorie')]
+        public function update(Categorie $categorie, Request $request, EntityManagerInterface $em): RedirectResponse
         {
+                $categorie->setName($request->request->get('name'));
+                $em->flush();
 
+                for ($i = 0; $i < 10; $i ++) {
+                        $questionKey = 'question_' . $i + 1;
+                        $questionId = $questionKey. '_id';
+
+                        $_question = $request->request->get($questionKey);
+                        $questionId = $request->request->get($questionId);
+                        $reponses = $request->request->all('answers_question_' . $i + 1);
+                        $correctReponse = $request->request->get('correct_answers_question_' . $i + 1);
+
+                        $question = $em->getRepository(Question::class)->find($questionId);
+                        $question->setQuestion($_question);
+                        $em->flush();
+
+                        $reponse = $em->getRepository(Reponse::class)->findBy(['id_question' => $questionId]);
+                        for ($j = 0; $j < count($reponse); $j++) {
+                                $reponse[$j]->setReponse($reponses[$j]);
+                                $reponse[$j]->setReponseExpected((int) $correctReponse -1  === $j);
+                                $em->flush();
+                        }
+                }
+
+
+                $this->addFlash('success', "Quizz [{$categorie->getName()}] mis à jour avec succès");
+               return $this->redirectToRoute('admin.quizz.categorie');
         }
 
-        public function delete()
+        #[Route('/quizz/{id}/delete', name: 'quizz.delete')]
+        #[IsGranted('QUIZ_DELETE', subject: 'categorie')]
+        public function delete(EntityManagerInterface $em, Categorie $categorie): RedirectResponse
         {
+                // get everything related to user and delete it
+                $quizz = $categorie;
+                $savedNameOfQuizz = $quizz->getName();
 
+                foreach ($quizz as $q) {
+                        $question = $em->getRepository(Question::class)->findBy(['id_categorie' => $q->getId()]);
+                        foreach ($question as $quest) {
+                                $reponse = $em->getRepository(Reponse::class)->findBy(['id_question' => $quest->getId()]);
+                                foreach ($reponse as $rep) {
+                                        $em->remove($rep);
+                                }
+                                $em->remove($quest);
+                        }
+                        $em->remove($q);
+                }
+
+                $em->flush();
+
+                $this->addFlash('success', "Le quizz [{$savedNameOfQuizz}] a bien été supprimé.");
+                return new RedirectResponse($this->generateUrl('admin.users'));
         }
 }

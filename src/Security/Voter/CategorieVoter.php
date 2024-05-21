@@ -62,7 +62,7 @@ class CategorieVoter extends Voter
 
         private function canEdit(Categorie $categorie, UserInterface $user): bool
         {
-                return $user === $categorie->getOwner() ||
+                return $user->getUserIdentifier() === $categorie->getOwner()->getUserIdentifier() ||
                     in_array('ROLE_ADMIN', $user->getRoles());
         }
 }
