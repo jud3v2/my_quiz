@@ -11,10 +11,12 @@ use Symfony\Component\HttpFoundation\RedirectResponse;
 use Symfony\Component\HttpFoundation\Response;
 use Symfony\Component\Routing\Attribute\Route;
 use Symfony\Component\HttpFoundation\Request;
+use Symfony\Component\Security\Http\Attribute\IsGranted;
 
 class CategorieController extends AbstractController
 {
         #[Route('/quizz/{id}', name: 'quizz')]
+        #[IsGranted('QUIZ_VIEW', subject: 'categorie', message: 'Veuillez vérifier votre compte', statusCode: 403)]
         public function index(
             EntityManagerInterface $entityManager,
             Categorie              $categorie,
@@ -137,6 +139,12 @@ class CategorieController extends AbstractController
         #[Route('/create/quizz', name: 'quizz.create')]
         public function showCreateCategorieForm(): RedirectResponse|Response
         {
+                // check si l'utilisateur est vérifier ou tout simplement si il est autorisé à créer un quiz
+                $this->denyAccessUnlessGranted('QUIZ_CREATE',
+                    new Categorie(),
+                    'Veuillez vérifier votre compte'
+                );
+
                 // vérifie que l'utilisateur est bien connecté
                 if($this->getUser() === null) {
                         // si non on le redirige vers la page de connexion avec un message
@@ -177,6 +185,12 @@ class CategorieController extends AbstractController
                 $quizz = new Categorie();
                 $quizz->setName($request->request->get('name'));
                 $quizz->setUser($user);
+
+                // check les autorisations avant la persistance en BDD
+                $this->denyAccessUnlessGranted('QUIZ_CREATE',
+                    $quizz,
+                    'Veuillez vérifier votre compte'
+                );
 
                 $em->persist($quizz);
                 $em->flush();
@@ -241,5 +255,15 @@ class CategorieController extends AbstractController
 
                 $this->addFlash('success', 'Quizz créé avec succès');
                 return $this->redirectToRoute('quizz', ['id' => $quizz->getId()]);
+        }
+
+        public function update()
+        {
+
+        }
+
+        public function delete()
+        {
+
         }
 }

@@ -30,18 +30,16 @@ class UserController extends AbstractController
                 $this->emailVerifier = $emailVerifier;
         }
 
-        #[Route('/user', name: 'app_user')]
-    public function index(): Response
-    {
-        return $this->render('user/index.html.twig', [
-            'controller_name' => 'UserController',
-        ]);
-    }
-
     #[Route('/user/profile', name: 'user.profile')]
     public function profile(): Response
     {
             $user = $this->getUser();
+
+            $this->denyAccessUnlessGranted(
+                'USER_VIEW',
+                $user,
+                'Vous n\'êtes pas autorisé à effectué cette action.'
+            );
 
             return $this->render('user/profile.html.twig', [
                 'user' => $user,
@@ -52,6 +50,12 @@ class UserController extends AbstractController
         public function sendEmailVerification(EntityManagerInterface $em): RedirectResponse
         {
                 $user = $em->getRepository(User::class)->find($this->getUser()->getId());
+
+                $this->denyAccessUnlessGranted(
+                    'USER_EDIT',
+                    $user,
+                    'Vous n\'êtes pas autorisé à effectué cette action.'
+                );
 
                 if($user->isVerified()) {
                         $this->addFlash('info', 'Votre adresse email est déjà vérifiée.');
@@ -75,10 +79,18 @@ class UserController extends AbstractController
         #[Route('/user/update/email', name: 'user.update_email')]
         public function formForEmail(Request $request, EntityManagerInterface $em): Response
         {
-                $form = $this->createForm(UpdateEmailFormType::class, $this->getUser());
+                $user = $this->getUser();
+
+                $this->denyAccessUnlessGranted(
+                    'USER_EDIT',
+                    $user,
+                    'Vous n\'êtes pas autorisé à effectué cette action.'
+                );
+
+                $form = $this->createForm(UpdateEmailFormType::class, $user);
                 $form->handleRequest($request);
 
-                if(!$this->getUser()) {
+                if(!$user) {
                         $this->addFlash('error', 'Vous devez être connecté pour accéder à cette page.');
                         return $this->redirectToRoute('app_login');
                 }
@@ -111,6 +123,11 @@ class UserController extends AbstractController
 
                 if($this->getUser()) {
                         $user = $this->getUser();
+                        $this->denyAccessUnlessGranted(
+                            'USER_EDIT',
+                            $user,
+                            'Vous n\'êtes pas autorisé à effectué cette action.'
+                        );
                 } else {
                         $this->addFlash('error', 'Vous devez être connecté pour accéder à cette page.');
                         return $this->redirectToRoute('app_login');
@@ -138,7 +155,13 @@ class UserController extends AbstractController
         #[Route('/user/update/profile', name: 'user.update_profile')]
         public function formForProfile(Request $request, EntityManagerInterface $em): Response
         {
-                $form = $this->createForm(UpdateProfileFormType::class, $this->getUser());
+                $user = $this->getUser();
+                $this->denyAccessUnlessGranted(
+                    'USER_EDIT',
+                    $user,
+                    'Vous n\'êtes pas autorisé à effectué cette action.'
+                );
+                $form = $this->createForm(UpdateProfileFormType::class, $user);
                 $form->handleRequest($request);
 
                 if($form->isSubmitted() && $form->isValid()) {
@@ -157,6 +180,11 @@ class UserController extends AbstractController
         public function deleteUser(EntityManagerInterface $em, Security $security): RedirectResponse
         {
                 $user = $this->getUser();
+                $this->denyAccessUnlessGranted(
+                    'USER_DELETE',
+                    $user,
+                    'Vous n\'êtes pas autorisé à effectué cette action.'
+                );
                 // logout the user in on the current firewall
                 // disable the csrf logout
                 $security->logout(false);
