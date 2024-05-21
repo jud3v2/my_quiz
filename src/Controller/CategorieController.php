@@ -16,7 +16,6 @@ use Symfony\Component\Security\Http\Attribute\IsGranted;
 class CategorieController extends AbstractController
 {
         #[Route('/quizz/{id}', name: 'quizz')]
-        #[IsGranted('QUIZ_VIEW', subject: 'categorie', message: 'Veuillez vérifier votre compte', statusCode: 403)]
         public function index(
             EntityManagerInterface $entityManager,
             Categorie              $categorie,
@@ -56,7 +55,7 @@ class CategorieController extends AbstractController
                 $nextQuestion = (int) $request->request->get('next_question') + 1;
 
                 if($request->isMethod('POST')) {
-                        // Si l'utilisateur n'a pas répondu à la question ont va lui afficher un message d'erreur
+                        // Si l'utilisateur n'a pas répondu à la question, on va lui afficher un message d'erreur
                         if($request->request->get('question') === null || $request->request->get('reponse') === null) {
                                 $this->addFlash('error', 'Veuillez répondre à la question');
                                 return $this->render('categorie/index.html.twig', [
@@ -147,7 +146,7 @@ class CategorieController extends AbstractController
 
                 // vérifie que l'utilisateur est bien connecté
                 if($this->getUser() === null) {
-                        // si non on le redirige vers la page de connexion avec un message
+                        // sinon ont le redirige vers la page de connexion avec un message
                         $this->addFlash('info', 'Vous devez être connecté afin de pouvoir créer un quizz.');
                         return $this->redirectToRoute('app_login');
                 } else {

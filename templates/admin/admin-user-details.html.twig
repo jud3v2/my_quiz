@@ -1,0 +1,56 @@
+{% extends 'admin.html.twig' %}
+
+{% block title %} Administration {% endblock %}
+
+{% block body %}
+    <div>
+        <div
+                class="bg-zinc-50 px-6 py-20 text-center text-surface dark:bg-neutral-700 dark:text-white mb-10">
+            <h1 class="mb-6 text-5xl font-bold">Administration de l'utilisateur: {{ user.firstname }} {{ user.lastname }}</h1>
+        </div>
+
+        <div class="container mx-auto">
+            <div class="relative overflow-x-auto">
+                {% form_theme form 'tailwind_2_layout.html.twig' %}
+                {{ form_start(form) }}
+                {{ form_row(form.email, {
+                    attr: {
+                        class: 'border border-gray-300 p-2 w-full mt-2 mb-4 rounded',
+                        placeholder: 'Email'
+                    }
+                }) }}
+                {{ form_row(form.firstname, {
+                    attr: {
+                        class: 'border border-gray-300 p-2 w-full mt-2 mb-4 rounded',
+                        placeholder: 'Prénom'
+                    }
+                }) }}
+                {{ form_row(form.lastname, {
+                    attr: {
+                        class: 'border border-gray-300 p-2 w-full mt-2 mb-4 rounded',
+                        placeholder: 'Nom'
+                    }
+                }) }}
+                {{  form_row(form.username, {
+                    attr: {
+                        class: 'border border-gray-300 p-2 w-full mt-2 mb-4 rounded',
+                        placeholder: 'Nom d\'utilisateur'
+                    }
+                }) }}
+                {{ form_row(form.isVerified, {
+                    attr: {
+                        class: 'border border-gray-300 p-2 w-full mt-2 mb-4 rounded',
+                    },
+                    label: 'Email Vérifié',
+                    label_attr: {
+                        class: 'block text-sm font-medium text-gray-700 w-1/2'
+                    }
+                }) }}
+                <button type="submit" class="p-2 bg-blue-500 text-white font-bold rounded">
+                    Modifier
+                </button>
+                {{ form_end(form) }}
+            </div>
+        </div>
+    </div>
+{% endblock %}

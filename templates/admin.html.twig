@@ -1,0 +1,12 @@
+<!DOCTYPE html>
+<html lang="fr">
+    {{ include('partials/_head.html.twig') }}
+    {{ include('partials/_admin_header.html.twig') }}
+    <body>
+    {{ include('partials/_flash_messages.html.twig') }}
+        {% block body %}
+
+        {% endblock %}
+    </body>
+    {{ include('partials/_footer.html.twig') }}
+</html>

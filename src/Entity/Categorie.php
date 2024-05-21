@@ -41,7 +41,7 @@ class Categorie
         return $this->user;
     }
 
-        public function getOwner()
+        public function getOwner(): ?User
         {
                 return $this->getUser();
         }

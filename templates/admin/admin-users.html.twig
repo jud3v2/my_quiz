@@ -1,0 +1,98 @@
+{% extends 'admin.html.twig' %}
+
+{% block title %} Administration {% endblock %}
+
+{% block body %}
+    <div>
+        <div
+                class="bg-zinc-50 px-6 py-20 text-center text-surface dark:bg-neutral-700 dark:text-white mb-10">
+            <h1 class="mb-6 text-5xl font-bold">Administration gestion des utilisateurs</h1>
+        </div>
+
+        <div class="container mx-auto">
+            <div class="relative overflow-x-auto">
+                <table class="w-full text-sm text-left rtl:text-right text-gray-500 dark:text-gray-400">
+                    <thead class="text-xs text-gray-700 uppercase bg-gray-50 dark:bg-gray-700 dark:text-gray-400">
+                    <tr>
+                        <th scope="col" class="px-6 py-3">
+                            ID
+                        </th>
+                        <th scope="col" class="px-6 py-3">
+                            Nom
+                        </th>
+                        <th scope="col" class="px-6 py-3">
+                            Prénom
+                        </th>
+                        <th scope="col" class="px-6 py-3">
+                            Email
+                        </th>
+                        <th scope="col" class="px-6 py-3">
+                            Nom D'utilisateur
+                        </th>
+                        <th scope="col" class="px-6 py-3">
+                            Role
+                        </th>
+                        <th scope="col" class="px-6 py-3">
+                            Vérifié
+                        </th>
+                        <th scope="col" class="px-6 py-3 text-center">
+                            Actions
+                        </th>
+                    </tr>
+                    </thead>
+                    <tbody>
+                       {% for user in users %}
+                           <tr class="bg-white border-b dark:bg-gray-800 dark:border-gray-700">
+                               <th scope="row" class="px-6 py-4 font-semibold text-gray-700 whitespace-nowrap dark:text-white">
+                                   {{ user.getUserIdentifier }}
+                               </th>
+                               <td class="px-6 py-4">
+                                   {{ user.getFirstname }}
+                               </td>
+                               <td class="px-6 py-4">
+                                   {{ user.getLastname }}
+                               </td>
+                               <td class="px-6 py-4">
+                                   {{ user.getEmail }}
+                               </td>
+                               <td class="px-6 py-4">
+                                   {{ user.getUsername }}
+                               </td>
+                               <td class="px-6 py-4">
+                                      {% for role in user.getRoles %}
+                                            {% if role is same as 'ROLE_ADMIN' %}
+                                                {{ 'Administrateur' }}
+                                            {% else %}
+                                                {{ 'Utilisateur' }}
+                                            {% endif %}
+                                       {% endfor %}
+                               </td>
+                               <td class="px-6 py-4">
+                                   {{ user.isVerified() ? 'Oui' : 'Non' }}
+                               </td>
+                               <td class="px-6 py-4 flex justify-center gap-3">
+                                   <a href="{{ path('admin.users.details', {'uuid': user.getUserIdentifier}) }}">
+                                       <button class="bg-blue-500 rounded-md p-1 text-white">
+                                           modification
+                                       </button>
+                                   </a>
+                                   <a href="{{ path('admin.users.switch.role', {'uuid': user.getUserIdentifier}) }}">
+                                       <button class="bg-blue-500 rounded-md p-1 text-white">
+                                           switch role
+                                       </button>
+                                   </a>
+                                   <a href="{{ path('admin.users.delete.page', {uuid: user.getUserIdentifier}) }}">
+                                       <button class="bg-red-500 rounded-md p-1 text-white">
+                                           suppression
+                                       </button>
+                                   </a>
+                               </td>
+                           </tr>
+                        {% endfor %}
+                    </tbody>
+                </table>
+            </div>
+
+        </div>
+    </div>
+{% endblock %}
