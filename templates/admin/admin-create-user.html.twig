@@ -1,0 +1,132 @@
+{% extends 'admin.html.twig' %}
+
+
+{% block title %}
+    Administration
+{% endblock %}
+
+{% block body %}
+    <div>
+        <div
+                class="bg-zinc-50 px-6 py-20 text-center text-surface dark:bg-neutral-700 dark:text-white">
+            <h1 class="mb-6 text-5xl font-bold">Administration gestion des emails</h1>
+        </div>
+        <div class="container mx-auto">
+            {% form_theme form 'tailwind_2_layout.html.twig' %}
+
+            {{ form_start(form) }}
+            {{ form_errors(form) }}
+
+            {{ form_row(form.username, {
+                attr: {
+                    class: 'w-full p-2 mb-4 border border-gray-300 rounded',
+                    placeholder: 'Nom d\'utilisateur',
+                },
+                label: "Nom d'utilisateur",
+                label_attr: {
+                    class: 'block text-md font-medium text-gray-700 my-3',
+                }
+            }) }}
+
+            {{  form_row(form.firstname, {
+                attr: {
+                    class: 'w-full p-2 mb-4 border border-gray-300 rounded',
+                    placeholder: 'Prénom',
+                },
+                label: "Prénom",
+                label_attr: {
+                    class: 'block text-md font-medium text-gray-700 mb-3',
+                }
+            }) }}
+
+            {{ form_row(form.lastname, {
+                attr: {
+                    class: 'w-full p-2 mb-4 border border-gray-300 rounded',
+                    placeholder: 'Nom',
+                },
+                label: "Nom",
+                label_attr: {
+                    class: 'block text-md font-medium text-gray-700 mb-3',
+                }
+            }) }}
+
+            {{ form_row(form.email, {
+                attr: {
+                    class: 'w-full p-2 mb-4 border border-gray-300 rounded',
+                    placeholder: 'Email',
+                },
+                label: "Email",
+                label_attr: {
+                    class: 'block text-md font-medium text-gray-700 mb-3',
+                }
+            }) }}
+
+            {{ form_row(form.roles, {
+                attr: {
+                    class: 'w-full p-2 mb-4 border border-gray-300 rounded',
+                    placeholder: 'Rôle de l\'utilisateur',
+                },
+                label: "Rôle de l'utilisateur",
+                label_attr: {
+                    class: 'block text-md font-medium text-gray-700 mb-3',
+                }
+            }) }}
+
+            {{ form_row(form.password, {
+                attr: {
+                    class: 'w-full p-2 mb-4 border border-gray-300 rounded',
+                    placeholder: 'Mot de passe',
+                },
+                label: "Mot de passe",
+                label_attr: {
+                    class: 'block text-md font-medium text-gray-700 mb-3',
+                }
+            }) }}
+
+            {{ form_row(form.isVerified, {
+                attr: {
+                    class: 'w-full p-2 mb-4 border border-gray-300 rounded',
+                },
+                label: "Email Vérifié",
+                label_attr: {
+                    class: 'block text-md font-medium text-gray-700 mb-3',
+                }
+            }) }}
+
+            {{ form_row(form.created_at, {
+                attr: {
+                    class: 'hidden'
+                },
+                label_attr: {
+                    class: 'hidden'
+                }
+            }) }}
+
+            {{ form_row(form.updated_at, {
+                attr: {
+                    class: 'hidden'
+                },
+                label_attr: {
+                    class: 'hidden'
+                }
+            }) }}
+
+            {{ form_row(form.uuid, {
+                attr: {
+                    class: 'hidden'
+                },
+                label_attr: {
+                    class: 'hidden'
+                }
+            }) }}
+
+            <button type="submit" class="bg-blue-500 text-white font-bold p-2 rounded">
+                Créer un utilisateur
+            </button>
+            {{ form_rest(form) }}
+            {{ form_end(form) }}
+        </div>
+    </div>
+{% endblock %}
+
+

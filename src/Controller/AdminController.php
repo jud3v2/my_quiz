@@ -3,7 +3,10 @@
 namespace App\Controller;
 
 use App\Entity\Categorie;
+use App\Entity\Question;
+use App\Entity\Reponse;
 use App\Entity\User;
+use App\Form\AdminCreateUserFormType;
 use App\Form\AdminUserFormType;
 use Doctrine\ORM\EntityManagerInterface;
 use Symfony\Bundle\FrameworkBundle\Controller\AbstractController;
@@ -12,13 +15,14 @@ use Symfony\Component\HttpFoundation\Request;
 use Symfony\Component\HttpFoundation\Response;
 use Symfony\Component\Routing\Attribute\Route;
 use Symfony\Component\Security\Http\Attribute\IsGranted;
+use function Symfony\Component\Clock\now;
 
 class AdminController extends AbstractController
 {
         #[Route('/admin', name: 'admin.index')]
         #[IsGranted(
             attribute: 'ROLE_ADMIN',
-            message: 'Only admins can access the admin dashboard',
+            message: 'Les administrateurs de ce site sont les seuls autorisé à accéder au dashboard',
             statusCode: 403,
             exceptionCode: 403
         )]
@@ -30,7 +34,7 @@ class AdminController extends AbstractController
         #[Route('/admin/users', name: 'admin.users')]
         #[IsGranted(
             attribute: 'ROLE_ADMIN',
-            message: 'Only admins can access the admin dashboard',
+            message: 'Les administrateurs de ce site sont les seuls autorisé à accéder au dashboard',
             statusCode: 403,
             exceptionCode: 403
         )]
@@ -43,10 +47,35 @@ class AdminController extends AbstractController
                 ]);
         }
 
+        #[Route('/admin/users/create', name: 'admin.users.create')]
+        #[IsGranted(
+            attribute: 'ROLE_ADMIN',
+            message: 'Les administrateurs de ce site sont les seuls autorisé à accéder au dashboard',
+            statusCode: 403,
+            exceptionCode: 403
+        )]
+        public function adminCreateUser(EntityManagerInterface $em, Request $request): RedirectResponse|Response
+        {
+                $form = $this->createForm(AdminCreateUserFormType::class, new User());
+                $form->handleRequest($request);
+                if($form->isSubmitted() && $form->isValid()) {
+                        $user = $form->getData();
+                        $em->persist($user);
+                        $em->flush();
+
+                        $this->addFlash('success', "L'utilisateur: {$user->getUsername()} a bien été créé.");
+                        return $this->redirectToRoute('admin.users');
+                }
+
+                return $this->render('admin/admin-create-user.html.twig', [
+                    'form' => $form->createView()
+                ]);
+        }
+
         #[Route('/admin/users/{uuid}', name: 'admin.users.details')]
         #[IsGranted(
             attribute: 'ROLE_ADMIN',
-            message: 'Only admins can access the admin dashboard',
+            message: 'Les administrateurs de ce site sont les seuls autorisé à accéder au dashboard',
             statusCode: 403,
             exceptionCode: 403
         )]
@@ -71,7 +100,7 @@ class AdminController extends AbstractController
         #[Route('/admin/users/{uuid}/switch/role', name: 'admin.users.switch.role')]
         #[IsGranted(
             attribute: 'ROLE_ADMIN',
-            message: 'Only admins can access the admin dashboard',
+            message: 'Les administrateurs de ce site sont les seuls autorisé à accéder au dashboard',
             statusCode: 403,
             exceptionCode: 403
         )]
@@ -101,7 +130,7 @@ class AdminController extends AbstractController
         #[Route('/admin/users/{uuid}/delete', name: 'admin.users.delete')]
         #[IsGranted(
             attribute: 'ROLE_ADMIN',
-            message: 'Only admins can access the admin dashboard',
+            message: 'Les administrateurs de ce site sont les seuls autorisé à accéder au dashboard',
             statusCode: 403,
             exceptionCode: 403
         )]
@@ -111,9 +140,9 @@ class AdminController extends AbstractController
                 $quizz = $em->getRepository(Categorie::class)->findBy(['user' => $user]);
 
                 foreach ($quizz as $q) {
-                        $question = $q->getQuestions();
+                        $question = $em->getRepository(Question::class)->find(['categorie' => $q]);
                         foreach ($question as $quest) {
-                                $reponse = $quest->getReponses();
+                                $reponse = $em->getRepository(Reponse::class)->find(['question' => $quest]);
                                 foreach ($reponse as $rep) {
                                         $em->remove($rep);
                                 }
@@ -140,7 +169,7 @@ class AdminController extends AbstractController
         #[Route('/admin/quizz-categorie', name: 'admin.quizz.categorie')]
         #[IsGranted(
             attribute: 'ROLE_ADMIN',
-            message: 'Only admins can access the admin dashboard',
+            message: 'Les administrateurs de ce site sont les seuls autorisé à accéder au dashboard',
             statusCode: 403,
             exceptionCode: 403
         )]
@@ -152,7 +181,7 @@ class AdminController extends AbstractController
         #[Route('/admin/email', name: 'admin.emailing')]
         #[IsGranted(
             attribute: 'ROLE_ADMIN',
-            message: 'Only admins can access the admin dashboard',
+            message: 'Les administrateurs de ce site sont les seuls autorisé à accéder au dashboard',
             statusCode: 403,
             exceptionCode: 403
         )]
@@ -164,7 +193,7 @@ class AdminController extends AbstractController
         #[Route('/admin/stats', name: 'admin.stats')]
         #[IsGranted(
             attribute: 'ROLE_ADMIN',
-            message: 'Only admins can access the admin dashboard',
+            message: 'Les administrateurs de ce site sont les seuls autorisé à accéder au dashboard',
             statusCode: 403,
             exceptionCode: 403
         )]
