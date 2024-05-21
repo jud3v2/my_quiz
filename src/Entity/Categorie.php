@@ -41,6 +41,11 @@ class Categorie
         return $this->user;
     }
 
+        public function getOwner()
+        {
+                return $this->getUser();
+        }
+
     public function setUser(?User $user): static
     {
         $this->user = $user;
