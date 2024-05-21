@@ -13,6 +13,7 @@ use Symfony\Bundle\FrameworkBundle\Controller\AbstractController;
 use Symfony\Component\HttpFoundation\RedirectResponse;
 use Symfony\Component\HttpFoundation\Request;
 use Symfony\Component\HttpFoundation\Response;
+use Symfony\Component\PasswordHasher\Hasher\UserPasswordHasherInterface;
 use Symfony\Component\Routing\Attribute\Route;
 use Symfony\Component\Security\Http\Attribute\IsGranted;
 use function Symfony\Component\Clock\now;
@@ -54,12 +55,18 @@ class AdminController extends AbstractController
             statusCode: 403,
             exceptionCode: 403
         )]
-        public function adminCreateUser(EntityManagerInterface $em, Request $request): RedirectResponse|Response
+        public function adminCreateUser(EntityManagerInterface $em, Request $request, UserPasswordHasherInterface $userPasswordHasher): RedirectResponse|Response
         {
                 $form = $this->createForm(AdminCreateUserFormType::class, new User());
                 $form->handleRequest($request);
                 if($form->isSubmitted() && $form->isValid()) {
                         $user = $form->getData();
+                        $user->setPassword(
+                            $userPasswordHasher->hashPassword(
+                                $user,
+                                $form->get('password')->getData()
+                            )
+                        );
                         $em->persist($user);
                         $em->flush();
 
@@ -140,9 +147,9 @@ class AdminController extends AbstractController
                 $quizz = $em->getRepository(Categorie::class)->findBy(['user' => $user]);
 
                 foreach ($quizz as $q) {
-                        $question = $em->getRepository(Question::class)->find(['categorie' => $q]);
+                        $question = $em->getRepository(Question::class)->findBy(['id_categorie' => $q->getId()]);
                         foreach ($question as $quest) {
-                                $reponse = $em->getRepository(Reponse::class)->find(['question' => $quest]);
+                                $reponse = $em->getRepository(Reponse::class)->findBy(['id_question' => $quest->getId()]);
                                 foreach ($reponse as $rep) {
                                         $em->remove($rep);
                                 }
@@ -175,7 +182,9 @@ class AdminController extends AbstractController
         )]
         public function adminGestionDesQuizzEtCategorie(): Response
         {
-                return $this->render('admin/admin-quizz-categorie.html.twig');
+                return $this->render('admin/admin-quizz-categorie.html.twig', [
+                    'quizz' => ''
+                ]);
         }
 
         #[Route('/admin/email', name: 'admin.emailing')]
