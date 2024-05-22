@@ -19,6 +19,9 @@ class Categorie
     #[ORM\ManyToOne(inversedBy: 'quizz')]
     private ?User $user = null;
 
+    #[ORM\OneToOne(mappedBy: 'categorie', cascade: ['persist', 'remove'])]
+    private ?QuizzStats $quizzStats = null;
+
     public function getId(): ?int
     {
         return $this->id;
@@ -56,5 +59,22 @@ class Categorie
         public function canDelete(): bool
         {
                 return (bool) $this->getOwner();
+        }
+
+        public function getQuizzStats(): ?QuizzStats
+        {
+            return $this->quizzStats;
+        }
+
+        public function setQuizzStats(QuizzStats $quizzStats): static
+        {
+            // set the owning side of the relation if necessary
+            if ($quizzStats->getCategorie() !== $this) {
+                $quizzStats->setCategorie($this);
+            }
+
+            $this->quizzStats = $quizzStats;
+
+            return $this;
         }
 }
