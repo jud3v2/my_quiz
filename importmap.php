@@ -28,4 +28,16 @@ return [
     'chart.js/auto' => [
         'version' => '3.9.1',
     ],
+    'chartjs-plugin-zoom' => [
+        'version' => '2.0.1',
+    ],
+    'hammerjs' => [
+        'version' => '2.0.8',
+    ],
+    'chart.js/helpers' => [
+        'version' => '4.4.1',
+    ],
+    '@kurkle/color' => [
+        'version' => '0.3.2',
+    ],
 ];

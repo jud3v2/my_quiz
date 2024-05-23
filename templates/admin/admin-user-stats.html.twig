@@ -6,7 +6,7 @@
     <div>
         <div
                 class="bg-zinc-50 px-6 py-20 text-center text-surface dark:bg-neutral-700 dark:text-white">
-            <h1 class="mb-6 text-5xl font-bold">Administration gestion des stats</h1>
+            <h1 class="mb-6 text-5xl font-bold">Administration gestion des stats de l'utilisateur {{ user.getUsername }}</h1>
         </div>
         <div class="container mx-auto">
             {{ render_chart(dayChart) }}

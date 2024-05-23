@@ -84,6 +84,11 @@
                                            modification
                                        </button>
                                    </a>
+                                   <a href="{{  path('admin.stats.user', {uuid: user.getUserIdentifier}) }}">
+                                       <button class="bg-blue-500 rounded-md p-1 text-white">
+                                           statistiques
+                                       </button>
+                                   </a>
                                    <a href="{{ path('admin.users.switch.role', {'uuid': user.getUserIdentifier}) }}">
                                        <button class="bg-blue-500 rounded-md p-1 text-white">
                                            switch role

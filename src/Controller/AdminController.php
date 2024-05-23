@@ -21,6 +21,8 @@ use Symfony\Component\Mime\Address;
 use Symfony\Component\PasswordHasher\Hasher\UserPasswordHasherInterface;
 use Symfony\Component\Routing\Attribute\Route;
 use Symfony\Component\Security\Http\Attribute\IsGranted;
+use Symfony\UX\Chartjs\Builder\ChartBuilderInterface;
+use Symfony\UX\Chartjs\Model\Chart;
 
 class AdminController extends AbstractController
 {
@@ -46,7 +48,7 @@ class AdminController extends AbstractController
         {
                 $app = $em->getRepository(App::class)->find(1);
                 $view = 0;
-                if($app) {
+                if ($app) {
                         $view = $app->getView();
                 }
 
@@ -82,7 +84,7 @@ class AdminController extends AbstractController
         {
                 $form = $this->createForm(AdminCreateUserFormType::class, new User());
                 $form->handleRequest($request);
-                if($form->isSubmitted() && $form->isValid()) {
+                if ($form->isSubmitted() && $form->isValid()) {
                         $user = $form->getData();
                         $user->setPassword(
                             $userPasswordHasher->hashPassword(
@@ -114,11 +116,11 @@ class AdminController extends AbstractController
                 $form = $this->createForm(AdminUserFormType::class, $user);
                 $form->handleRequest($request);
 
-                if($form->isSubmitted() && $form->isValid()) {
-                    $em->flush();
+                if ($form->isSubmitted() && $form->isValid()) {
+                        $em->flush();
 
-                    $this->addFlash('success', "L'utilisateur: {$user->getUsername()} a bien été modifié.");
-                    return $this->redirectToRoute('admin.users');
+                        $this->addFlash('success', "L'utilisateur: {$user->getUsername()} a bien été modifié.");
+                        return $this->redirectToRoute('admin.users');
                 }
 
                 return $this->render('admin/admin-user-details.html.twig', [
@@ -138,10 +140,10 @@ class AdminController extends AbstractController
         {
                 $roles = $user->getRoles();
 
-                if(in_array('ROLE_ADMIN', $roles)) {
+                if (in_array('ROLE_ADMIN', $roles)) {
                         // Remove the role
                         foreach ($roles as $key => $role) {
-                                if($role === 'ROLE_ADMIN') {
+                                if ($role === 'ROLE_ADMIN') {
                                         unset($roles[$key]);
                                 }
                         }
@@ -225,13 +227,13 @@ class AdminController extends AbstractController
                 $question = $em->getRepository(Question::class)->findBy(['id_categorie' => $categorie->getId()]);
 
                 foreach ($question as $q) {
-                    $reponses[] = $em->getRepository(Reponse::class)->findBy(['id_question' => $q->getId()]);
+                        $reponses[] = $em->getRepository(Reponse::class)->findBy(['id_question' => $q->getId()]);
                 }
 
                 return $this->render('admin/admin-quizz-edit.html.twig', [
                     'quizz' => $categorie,
-                        'question' => $question,
-                        'reponse' => $reponses
+                    'question' => $question,
+                    'reponse' => $reponses
                 ]);
         }
 
@@ -268,7 +270,7 @@ class AdminController extends AbstractController
                 }
 
                 foreach ($question as $q) {
-                    $em->remove($q);
+                        $em->remove($q);
                 }
 
                 foreach ($userHistory as $uh) {
@@ -301,7 +303,7 @@ class AdminController extends AbstractController
         #[Route('/admin/email/send/to/{uuid}', name: 'admin.users.email')]
         public function prepareAdminToChoiceEmailToSendToUsers(User $user, Request $request, EntityManagerInterface $em): Response
         {
-                if(!$user->isVerified()) {
+                if (!$user->isVerified()) {
                         // send email verification to the user
                         $this->emailVerifier->sendEmailConfirmation('app_verify_email', $user,
                             (new TemplatedEmail())
@@ -324,7 +326,7 @@ class AdminController extends AbstractController
                 foreach ($quizz as $quiz) {
                         $tmp = $em->getRepository(UserHistory::class)->findBy(['quizz' => $quiz->getId()]);
 
-                        if($tmp) {
+                        if ($tmp) {
                                 $quizzDone[] = $quiz;
                         } else {
                                 $quizzNotDone[] = $quiz;
@@ -333,8 +335,8 @@ class AdminController extends AbstractController
 
                 return $this->render('admin/admin-email-send.html.twig', [
                     'user' => $user,
-                        'quizzDone' => $quizzDone,
-                        'quizzNotDone' => $quizzNotDone
+                    'quizzDone' => $quizzDone,
+                    'quizzNotDone' => $quizzNotDone
                 ]);
         }
 
@@ -347,7 +349,7 @@ class AdminController extends AbstractController
                 return $this->redirectToRoute('admin.emailing.send.email.to.user.has.not.done.quizz', [
                     'uuid' => $user->getUuid(),
                     'id' => $quizz->getId(),
-                        'user' => $user
+                    'user' => $user
                 ]);
         }
 
@@ -363,7 +365,7 @@ class AdminController extends AbstractController
                 $quizzId = $request->request->get('quizz');
                 $quizz = $em->getRepository(Categorie::class)->find($quizzId);
 
-                return  $this->redirectToRoute('admin.emailing.send.email.to.user.has.done.quizz', [
+                return $this->redirectToRoute('admin.emailing.send.email.to.user.has.done.quizz', [
                     'uuid' => $user->getUuid(),
                     'id' => $quizz->getId(),
                     'user' => $user
@@ -377,8 +379,439 @@ class AdminController extends AbstractController
             statusCode: 403,
             exceptionCode: 403
         )]
-        public function adminStatistique(): Response
+        public function adminStatistique(ChartBuilderInterface $cb, EntityManagerInterface $em): Response
         {
-                return $this->render('admin/admin-stats.html.twig');
+
+                $histories = $em->getRepository(UserHistory::class)->findAll();
+
+                $monthlyCounts = array_fill(1, 12, 0);
+                $weeklyCounts = array_fill(1, 7, 0);
+                $dailyCounts = [
+                    0 => 0,
+                        "01" => 0,
+                        "02" => 0,
+                        "03" => 0,
+                        "04" => 0,
+                        "05" => 0,
+                        "06" => 0,
+                        "07" => 0,
+                        "08" => 0,
+                        '09' => 0,
+                        10 => 0,
+                        11 => 0,
+                        12 => 0,
+                        13 => 0,
+                        14 => 0,
+                        15 => 0,
+                        16 => 0,
+                        17 => 0,
+                        18 => 0,
+                        19 => 0,
+                        20 => 0,
+                        21 => 0,
+                        22 => 0,
+                        23 => 0,
+                        24 => 0,
+                        "00" => 0
+                ];
+                $longWeeklyCount = [
+                    "01" => 0,
+                        "02" => 0,
+                        "03" => 0,
+                        "04" => 0,
+                        "05" => 0,
+                        "06" => 0,
+                        "07" => 0,
+                        "08" => 0,
+                        "09" => 0,
+                ];
+
+                $longWeeklyCount = array_merge(array_fill(10, 42, 0), $longWeeklyCount);
+
+                foreach ($histories as $history) {
+                        $month = $history->getCreatedAt()->format('n'); // Extract month as a number (1-12)
+                        $monthlyCounts[$month]++;
+                }
+
+                foreach ($histories as $history) {
+                        $week = $history->getCreatedAt()->format('w'); // Extract week as a number (0 - 6)
+                        $weeklyCounts[$week]++;
+                }
+
+                foreach ($histories as $history) {
+                        $day = $history->getCreatedAt()->format('H'); // Extract hour as a number (0-24)
+                        $dailyCounts[$day]++;
+                }
+
+                foreach ($histories as $history) {
+                        $week = $history->getCreatedAt()->format('W'); // Extract week as a number (0 - 42)
+                        $longWeeklyCount[$week]++;
+                }
+
+                return $this->render('admin/admin-stats.html.twig', [
+                    'chart' => $this->yearChart($monthlyCounts, $cb),
+                    'weekChart' => $this->weekChart($weeklyCounts, $cb),
+                    'dayChart' => $this->dayChart($dailyCounts, $cb),
+                        'longWeekChart' => $this->longWeekChart($longWeeklyCount, $cb),
+                ]);
+        }
+
+        /**
+         * @param array $mc
+         * @param \Symfony\UX\Chartjs\Builder\ChartBuilderInterface $cb
+         * @return \Symfony\UX\Chartjs\Model\Chart
+         */
+        private function yearChart(array $mc, ChartBuilderInterface $cb): Chart
+        {
+                $chart = $cb->createChart(Chart::TYPE_LINE);
+
+                $chart->setData([
+                    'labels' => ['Janvier', 'Février', 'Mars', 'Avril', 'Mai', 'Juin', 'Juillet', 'Août', 'Septembre', 'Octobre', 'Novembre', 'Décembre'],
+                    'datasets' => [
+                        [
+                            'label' => 'Nombre de quizz effectué sur l\'année',
+                            'backgroundColor' => 'rgb(255, 99, 132)',
+                            'borderColor' => 'rgb(255, 99, 132)',
+                            'data' => array_values($mc),
+                        ],
+                    ],
+                ]);
+
+                $chart->setOptions([
+                    'scales' => [
+                        'y' => [
+                            'suggestedMin' => 0,
+                            'suggestedMax' => 25,
+                        ],
+                    ]
+                ]);
+
+                return $chart;
+        }
+
+        /**
+         * @param array $wc
+         * @param \Symfony\UX\Chartjs\Builder\ChartBuilderInterface $cb
+         * @return \Symfony\UX\Chartjs\Model\Chart
+         */
+        public function weekChart(array $wc, ChartBuilderInterface $cb): Chart
+        {
+                $chart = $cb->createChart(Chart::TYPE_LINE);
+
+                $chart->setData([
+                    'labels' => ['Lundi', 'Mardi', 'Mercredi', 'Jeudi', 'Vendredi', 'Samedi', 'Dimanche'],
+                        'datasets' => [
+                            [
+                                'label' => 'Nombre de quizz effectué par jour de la semaine',
+                                'backgroundColor' => 'rgb(255, 99, 132)',
+                                'borderColor' => 'rgb(255, 99, 132)',
+                                'data' => array_values($wc),
+                            ],
+                        ],
+                ]);
+
+                $chart->setOptions([
+                    'scales' => [
+                        'y' => [
+                            'suggestedMin' => 0,
+                            'suggestedMax' => 25,
+                        ],
+                    ]
+                ]);
+
+                return $chart;
+        }
+
+        private function dayChart(array $dc, ChartBuilderInterface $cb): Chart
+        {
+                $chart = $cb->createChart(Chart::TYPE_LINE);
+
+                $chart->setData([
+                    'labels' => ['00h', '01h', '02h', '03h', '04h', '05h', '06h', '07h', '08h', '09h', '10h', '11h', '12h', '13h', '14h', '15h', '16h', '17h', '18h', '19h', '20h', '21h', '22h', '23h'],
+                    'datasets' => [
+                        [
+                            'label' => 'Nombre de quizz effectué ce jour heure par heure',
+                            'backgroundColor' => 'rgb(255, 99, 132)',
+                            'borderColor' => 'rgb(255, 99, 132)',
+                            'data' => array_values($dc),
+                        ],
+                    ],
+                ]);
+
+                $chart->setOptions([
+                    'scales' => [
+                        'y' => [
+                            'suggestedMin' => 0,
+                            'suggestedMax' => 25,
+                        ],
+                    ]
+                ]);
+
+                return $chart;
+        }
+
+        /**
+         * @param array $lwc
+         * @param \Symfony\UX\Chartjs\Builder\ChartBuilderInterface $cb
+         * @return \Symfony\UX\Chartjs\Model\Chart
+         */
+        private function longWeekChart(array $lwc, ChartBuilderInterface $cb): Chart
+        {
+                $chart = $cb->createChart(Chart::TYPE_LINE);
+
+                $week = function () {
+                        $w = [];
+
+                        for ($i = 1; $i <= 52; $i++) {
+                                $w[] = 'Semaine' . $i;
+                        }
+
+                        return $w;
+                };
+
+                $chart->setData([
+                    'labels' => $week(),
+                    'datasets' => [
+                        [
+                            'label' => 'Nombre de quizz effectué semaine par semaine',
+                            'backgroundColor' => 'rgb(255, 99, 132)',
+                            'borderColor' => 'rgb(255, 99, 132)',
+                            'data' => array_values($lwc),
+                        ],
+                    ],
+                ]);
+
+                $chart->setOptions([
+                    'scales' => [
+                        'y' => [
+                            'suggestedMin' => 0,
+                            'suggestedMax' => 25,
+                        ],
+                    ]
+                ]);
+
+                return $chart;
+        }
+
+        #[Route('/admin/stats/user/{uuid}', name: 'admin.stats.user')]
+        #[IsGranted(
+            attribute: 'ROLE_ADMIN',
+            message: 'Les administrateurs de ce site sont les seuls autorisé à accéder au dashboard',
+            statusCode: 403,
+            exceptionCode: 403
+        )]
+        public function adminUserStatistique(ChartBuilderInterface $cb, EntityManagerInterface $em, User $user): Response
+        {
+
+                $histories = $em->getRepository(UserHistory::class)->findBy(['user' => $user]);
+
+                $monthlyCounts = array_fill(1, 12, 0);
+                $weeklyCounts = array_fill(1, 7, 0);
+                $dailyCounts = [
+                    0 => 0,
+                    "01" => 0,
+                    "02" => 0,
+                    "03" => 0,
+                    "04" => 0,
+                    "05" => 0,
+                    "06" => 0,
+                    "07" => 0,
+                    "08" => 0,
+                    '09' => 0,
+                    10 => 0,
+                    11 => 0,
+                    12 => 0,
+                    13 => 0,
+                    14 => 0,
+                    15 => 0,
+                    16 => 0,
+                    17 => 0,
+                    18 => 0,
+                    19 => 0,
+                    20 => 0,
+                    21 => 0,
+                    22 => 0,
+                    23 => 0,
+                    24 => 0,
+                    "00" => 0
+                ];
+                $longWeeklyCount = [
+                    "01" => 0,
+                    "02" => 0,
+                    "03" => 0,
+                    "04" => 0,
+                    "05" => 0,
+                    "06" => 0,
+                    "07" => 0,
+                    "08" => 0,
+                    "09" => 0,
+                ];
+
+                $longWeeklyCount = array_merge(array_fill(10, 42, 0), $longWeeklyCount);
+
+                foreach ($histories as $history) {
+                        $month = $history->getCreatedAt()->format('n'); // Extract month as a number (1-12)
+                        $monthlyCounts[$month]++;
+                }
+
+                foreach ($histories as $history) {
+                        $week = $history->getCreatedAt()->format('w'); // Extract week as a number (0 - 6)
+                        $weeklyCounts[$week]++;
+                }
+
+                foreach ($histories as $history) {
+                        $day = $history->getCreatedAt()->format('H'); // Extract hour as a number (0-24)
+                        $dailyCounts[$day]++;
+                }
+
+                foreach ($histories as $history) {
+                        $week = $history->getCreatedAt()->format('W'); // Extract week as a number (0 - 42)
+                        $longWeeklyCount[$week]++;
+                }
+
+                return $this->render('admin/admin-user-stats.html.twig', [
+                    'chart' => $this->yearUserChart($monthlyCounts, $cb),
+                    'weekChart' => $this->weekUserChart($weeklyCounts, $cb),
+                    'dayChart' => $this->dayUserChart($dailyCounts, $cb),
+                    'longWeekChart' => $this->longWeekUserChart($longWeeklyCount, $cb),
+                    'user' => $user
+                ]);
+        }
+
+        /**
+         * @param array $mc
+         * @param \Symfony\UX\Chartjs\Builder\ChartBuilderInterface $cb
+         * @return \Symfony\UX\Chartjs\Model\Chart
+         */
+        private function yearUserChart(array $mc, ChartBuilderInterface $cb): Chart
+        {
+                $chart = $cb->createChart(Chart::TYPE_LINE);
+
+                $chart->setData([
+                    'labels' => ['Janvier', 'Février', 'Mars', 'Avril', 'Mai', 'Juin', 'Juillet', 'Août', 'Septembre', 'Octobre', 'Novembre', 'Décembre'],
+                    'datasets' => [
+                        [
+                            'label' => 'Nombre de quizz effectué sur l\'année',
+                            'backgroundColor' => 'rgb(255, 99, 132)',
+                            'borderColor' => 'rgb(255, 99, 132)',
+                            'data' => array_values($mc),
+                        ],
+                    ],
+                ]);
+
+                $chart->setOptions([
+                    'scales' => [
+                        'y' => [
+                            'suggestedMin' => 0,
+                            'suggestedMax' => 25,
+                        ],
+                    ]
+                ]);
+
+                return $chart;
+        }
+
+        /**
+         * @param array $wc
+         * @param \Symfony\UX\Chartjs\Builder\ChartBuilderInterface $cb
+         * @return \Symfony\UX\Chartjs\Model\Chart
+         */
+        public function weekUserChart(array $wc, ChartBuilderInterface $cb): Chart
+        {
+                $chart = $cb->createChart(Chart::TYPE_LINE);
+
+                $chart->setData([
+                    'labels' => ['Lundi', 'Mardi', 'Mercredi', 'Jeudi', 'Vendredi', 'Samedi', 'Dimanche'],
+                    'datasets' => [
+                        [
+                            'label' => 'Nombre de quizz effectué par jour de la semaine',
+                            'backgroundColor' => 'rgb(255, 99, 132)',
+                            'borderColor' => 'rgb(255, 99, 132)',
+                            'data' => array_values($wc),
+                        ],
+                    ],
+                ]);
+
+                $chart->setOptions([
+                    'scales' => [
+                        'y' => [
+                            'suggestedMin' => 0,
+                            'suggestedMax' => 25,
+                        ],
+                    ]
+                ]);
+
+                return $chart;
+        }
+
+        private function dayUserChart(array $dc, ChartBuilderInterface $cb): Chart
+        {
+                $chart = $cb->createChart(Chart::TYPE_LINE);
+
+                $chart->setData([
+                    'labels' => ['00h', '01h', '02h', '03h', '04h', '05h', '06h', '07h', '08h', '09h', '10h', '11h', '12h', '13h', '14h', '15h', '16h', '17h', '18h', '19h', '20h', '21h', '22h', '23h'],
+                    'datasets' => [
+                        [
+                            'label' => 'Nombre de quizz effectué ce jour heure par heure',
+                            'backgroundColor' => 'rgb(255, 99, 132)',
+                            'borderColor' => 'rgb(255, 99, 132)',
+                            'data' => array_values($dc),
+                        ],
+                    ],
+                ]);
+
+                $chart->setOptions([
+                    'scales' => [
+                        'y' => [
+                            'suggestedMin' => 0,
+                            'suggestedMax' => 25,
+                        ],
+                    ]
+                ]);
+
+                return $chart;
+        }
+
+        /**
+         * @param array $lwc
+         * @param \Symfony\UX\Chartjs\Builder\ChartBuilderInterface $cb
+         * @return \Symfony\UX\Chartjs\Model\Chart
+         */
+        private function longWeekUserChart(array $lwc, ChartBuilderInterface $cb): Chart
+        {
+                $chart = $cb->createChart(Chart::TYPE_LINE);
+
+                $week = function () {
+                        $w = [];
+
+                        for ($i = 1; $i <= 52; $i++) {
+                                $w[] = 'Semaine' . $i;
+                        }
+
+                        return $w;
+                };
+
+                $chart->setData([
+                    'labels' => $week(),
+                    'datasets' => [
+                        [
+                            'label' => 'Nombre de quizz effectué semaine par semaine',
+                            'backgroundColor' => 'rgb(255, 99, 132)',
+                            'borderColor' => 'rgb(255, 99, 132)',
+                            'data' => array_values($lwc),
+                        ],
+                    ],
+                ]);
+
+                $chart->setOptions([
+                    'scales' => [
+                        'y' => [
+                            'suggestedMin' => 0,
+                            'suggestedMax' => 25,
+                        ],
+                    ]
+                ]);
+
+                return $chart;
         }
 }
