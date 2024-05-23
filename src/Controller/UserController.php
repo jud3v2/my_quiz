@@ -69,7 +69,7 @@ class UserController extends AbstractController
                         ->from(new Address("postmaster@sandboxbb95dbd1520f466484c55ad4e119f22c.mailgun.org", 'My Quizz'))
                         ->to($user->getEmail())
                         ->subject('Confirmer votre adresse email')
-                        ->htmlTemplate('registration/confirmation_email.html.twig')
+                        ->htmlTemplate('email/confirmation_email.html.twig')
                 );
 
                 $this->addFlash('success', 'Un email de vérification a été envoyé à votre adresse email.');

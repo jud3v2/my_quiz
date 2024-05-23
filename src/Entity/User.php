@@ -74,6 +74,9 @@ class User implements UserInterface, PasswordAuthenticatedUserInterface
         #[ORM\OneToMany(targetEntity: Categorie::class, mappedBy: 'user')]
         private Collection $quizz;
 
+        #[ORM\Column(nullable: true)]
+        private ?\DateTimeImmutable $last_connection = null;
+
         public function __construct()
         {
             $this->userHistories = new ArrayCollection();
@@ -333,6 +336,18 @@ class User implements UserInterface, PasswordAuthenticatedUserInterface
                     $quizz->setUser(null);
                 }
             }
+
+            return $this;
+        }
+
+        public function getLastConnection(): ?\DateTimeImmutable
+        {
+            return $this->last_connection;
+        }
+
+        public function setLastConnection(?\DateTimeImmutable $last_connection): static
+        {
+            $this->last_connection = $last_connection;
 
             return $this;
         }

@@ -9,17 +9,31 @@ use App\Entity\User;
 use App\Entity\UserHistory;
 use App\Form\AdminCreateUserFormType;
 use App\Form\AdminUserFormType;
+use App\Security\EmailVerifier;
 use Doctrine\ORM\EntityManagerInterface;
+use Symfony\Bridge\Twig\Mime\TemplatedEmail;
 use Symfony\Bundle\FrameworkBundle\Controller\AbstractController;
 use Symfony\Component\HttpFoundation\RedirectResponse;
 use Symfony\Component\HttpFoundation\Request;
 use Symfony\Component\HttpFoundation\Response;
+use Symfony\Component\Mime\Address;
 use Symfony\Component\PasswordHasher\Hasher\UserPasswordHasherInterface;
 use Symfony\Component\Routing\Attribute\Route;
 use Symfony\Component\Security\Http\Attribute\IsGranted;
 
 class AdminController extends AbstractController
 {
+
+        /**
+         * @var \App\Security\EmailVerifier
+         */
+        private EmailVerifier $emailVerifier;
+
+        public function __construct(EmailVerifier $emailVerifier)
+        {
+                $this->emailVerifier = $emailVerifier;
+        }
+
         #[Route('/admin', name: 'admin.index')]
         #[IsGranted(
             attribute: 'ROLE_ADMIN',
@@ -266,9 +280,85 @@ class AdminController extends AbstractController
             statusCode: 403,
             exceptionCode: 403
         )]
-        public function adminGestionDesEmails(): Response
+        public function adminGestionDesEmails(EntityManagerInterface $em): Response
         {
-                return $this->render('admin/admin-email.html.twig');
+                $users = $em->getRepository(User::class)->findAll();
+
+                return $this->render('admin/admin-email.html.twig', [
+                    'users' => $users
+                ]);
+        }
+
+        #[Route('/admin/email/send/to/{uuid}', name: 'admin.users.email')]
+        public function prepareAdminToChoiceEmailToSendToUsers(User $user, Request $request, EntityManagerInterface $em): Response
+        {
+                if(!$user->isVerified()) {
+                        // send email verification to the user
+                        $this->emailVerifier->sendEmailConfirmation('app_verify_email', $user,
+                            (new TemplatedEmail())
+                                ->from(new Address("postmaster@sandboxbb95dbd1520f466484c55ad4e119f22c.mailgun.org", 'My Quizz'))
+                                ->to($user->getEmail())
+                                ->subject('Confirmer votre adresse email')
+                                ->htmlTemplate('email/confirmation_email.html.twig')
+                        );
+
+                        // send error to the administrator and telle him the email vérification was send.
+                        $this->addFlash('error', 'Cet utilisateur n\'a pas encore vérifié son email. Un email de vérification vient de lui être envoyé.');
+                        return $this->redirectToRoute('admin.emailing');
+                }
+
+                $quizz = $em->getRepository(Categorie::class)->findAll();
+
+                $quizzDone = [];
+                $quizzNotDone = [];
+
+                foreach ($quizz as $quiz) {
+                        $tmp = $em->getRepository(UserHistory::class)->findBy(['quizz' => $quiz->getId()]);
+
+                        if($tmp) {
+                                $quizzDone[] = $quiz;
+                        } else {
+                                $quizzNotDone[] = $quiz;
+                        }
+                }
+
+                return $this->render('admin/admin-email-send.html.twig', [
+                    'user' => $user,
+                        'quizzDone' => $quizzDone,
+                        'quizzNotDone' => $quizzNotDone
+                ]);
+        }
+
+        #[Route('/admin/email/send/to/{uuid}/user-has-not-done-quizz', name: 'admin.emailing.send.not.done.quizz')]
+        public function postUserHasNotDoneAQuizz(User $user, Request $request, EntityManagerInterface $em): RedirectResponse
+        {
+                $quizzId = $request->request->get('quizz');
+                $quizz = $em->getRepository(Categorie::class)->find($quizzId);
+
+                return $this->redirectToRoute('admin.emailing.send.email.to.user.has.not.done.quizz', [
+                    'uuid' => $user->getUuid(),
+                    'id' => $quizz->getId(),
+                        'user' => $user
+                ]);
+        }
+
+        #[Route('/admin/email/send/to/{uuid}/user-has-done-quizz', name: 'admin.emailing.send.done.quizz')]
+        #[IsGranted(
+            attribute: 'ROLE_ADMIN',
+            message: 'Les administrateurs de ce site sont les seuls autorisé à accéder au dashboard',
+            statusCode: 403,
+            exceptionCode: 403
+        )]
+        public function postUserHasDoneAQuizz(User $user, Request $request, EntityManagerInterface $em): RedirectResponse
+        {
+                $quizzId = $request->request->get('quizz');
+                $quizz = $em->getRepository(Categorie::class)->find($quizzId);
+
+                return  $this->redirectToRoute('admin.emailing.send.email.to.user.has.done.quizz', [
+                    'uuid' => $user->getUuid(),
+                    'id' => $quizz->getId(),
+                    'user' => $user
+                ]);
         }
 
         #[Route('/admin/stats', name: 'admin.stats')]

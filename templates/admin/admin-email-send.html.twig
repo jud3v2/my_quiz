@@ -1,0 +1,109 @@
+{% extends 'admin.html.twig' %}
+
+{% block body %}
+    <div>
+        <div
+                class="bg-zinc-50 px-6 py-20 text-center text-surface dark:bg-neutral-700 dark:text-white">
+            <h1 class="mb-6 text-5xl font-bold">Envoyer un email à l'utilisateur: {{ user.getUsername }}</h1>
+            <p class="font-bold text-center text-gray-700">{{ user.getEmail }}</p>
+        </div>
+
+        <div class="my-5">
+            <div>
+                {% set lastLoginDate = date(user.getLastConnection) %}
+                {% set nowDate = date('now') %}
+                <h2 class="text-lg text-center font-bold mt-10">
+                    Dernière connexion: {{ nowDate.diff(lastLoginDate).days }} days ago
+                </h2>
+            </div>
+            <div class="flex justify-center">
+                <a href="{{  path('admin.emailing.send.email.to.user.not.connected.since.one.month', {
+                    uuid: user.getUserIdentifier
+                }) }}">
+                    <button class="rounded text-white bg-blue-500 p-2">
+                        Envoie un email pour la raison : connexion de plus de 1 mois
+                    </button>
+                </a>
+            </div>
+        </div>
+
+        <div class="my-5">
+            <div>
+                {% set lastLoginDate = date(user.getLastConnection) %}
+                {% set nowDate = date('now') %}
+                <h2 class="text-lg text-center font-bold mt-10">
+                    Dernière connexion: {{ nowDate.diff(lastLoginDate).days }} days ago
+                </h2>
+            </div>
+            <div class="flex justify-center">
+                <a href="{{  path('admin.emailing.send.email.to.user.connected.since.one.month', {
+                    uuid: user.getUserIdentifier
+                }) }}">
+                    <button class="rounded text-white bg-blue-500 p-2">
+                        Envoie un email pour la raison : connexion de moins de 1 mois
+                    </button>
+                </a>
+            </div>
+        </div>
+
+
+        <div class="my-5">
+            <div>
+                <h2 class="text-lg text-center font-bold mt-10">
+                    Quizz effectué
+                </h2>
+            </div>
+            <div class="flex justify-center">
+                <form action="{{  path('admin.emailing.send.done.quizz', {
+                    uuid: user.getUserIdentifier
+                }) }}" method="POST">
+                    <div class="">
+                        <label for="quizz">Choisissez quel quizz fait par l'utilisateur</label>
+                        <select name="quizz" id="quizz" class="block border p-2 rounded">
+                            {% for q in quizzDone %}
+                                <option value="{{ q.getId }}">{{ q.getName }}</option>
+                            {% endfor %}
+                        </select>
+                        <div class="mx-auto">
+                            <button type="submit" class="rounded text-white bg-blue-500 p-2 mt-2 mx-auto relative flex justify-center">
+                                Envoie un email pour la raison : quizz effectué
+                            </button>
+                        </div>
+                    </div>
+                </form>
+            </div>
+        </div>
+
+        <div class="my-5">
+            <div>
+                <h2 class="text-lg text-center font-bold mt-10">
+                    Quizz non effectué
+                </h2>
+            </div>
+            <div class="flex justify-center">
+                <form action="{{  path('admin.emailing.send.not.done.quizz', {
+                    uuid: user.getUserIdentifier
+                }) }}" method="POST">
+                    <div class="">
+                        <label for="quizz">Choisissez quel quizz doit être fait par l'utilisateur</label>
+                        <select name="quizz" id="quizz" class="block border p-2 rounded">
+                            {% for q in quizzNotDone %}
+                                <option value="{{ q.getId }}">{{ q.getName }}</option>
+                            {% endfor %}
+                        </select>
+                        <div class="mx-auto">
+                            <button type="submit" class="rounded text-white bg-blue-500 p-2 mt-2 mx-auto relative flex justify-center">
+                                Envoie un email pour la raison : quizz non effectué
+                            </button>
+                        </div>
+                    </div>
+                </form>
+            </div>
+        </div>
+    </div>
+{% endblock %}
+
+{% block title %}
+    Send email to user
+{% endblock %}
+

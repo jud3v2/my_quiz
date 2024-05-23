@@ -26,6 +26,10 @@ class HomeController extends AbstractController
                         $this->addFlash('info', "Veuillez confirmer votre adresse email sur votre page de profile");
                         $r->getSession()->set('has_verified_email', false);
                     }
+            } elseif($user) {
+                    // update last connection
+                    $user->setLastConnection(new \DateTimeImmutable('UTC'));
+                    $entityManager->flush();
             }
 
         return $this->render('home/index.html.twig', [
