@@ -258,7 +258,7 @@ class CategorieController extends AbstractController
         }
 
         #[Route('/quizz/{id}/update', name: 'quizz.update.post')]
-        #[IsGranted('QUIZ_UPDATE', subject: 'categorie')]
+        #[IsGranted('ROLE_ADMIN', subject: 'categorie')]
         public function update(Categorie $categorie, Request $request, EntityManagerInterface $em): RedirectResponse
         {
                 $categorie->setName($request->request->get('name'));
