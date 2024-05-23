@@ -2,6 +2,7 @@
 
 namespace App\Controller;
 
+use App\Entity\App;
 use App\Entity\Categorie;
 use App\Entity\Question;
 use App\Entity\Reponse;
@@ -41,9 +42,17 @@ class AdminController extends AbstractController
             statusCode: 403,
             exceptionCode: 403
         )]
-        public function adminDashboard(): Response
+        public function adminDashboard(EntityManagerInterface $em): Response
         {
-                return $this->render('admin/index.html.twig');
+                $app = $em->getRepository(App::class)->find(1);
+                $view = 0;
+                if($app) {
+                        $view = $app->getView();
+                }
+
+                return $this->render('admin/index.html.twig', [
+                    'views' => $view
+                ]);
         }
 
         #[Route('/admin/users', name: 'admin.users')]
