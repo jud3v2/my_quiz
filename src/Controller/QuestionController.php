@@ -7,6 +7,8 @@ use App\Entity\Question;
 use App\Entity\User;
 use App\Entity\UserHistory;
 use App\Entity\UserReponse;
+use DateTime;
+use DateTimeImmutable;
 use Doctrine\ORM\EntityManagerInterface;
 use Symfony\Bundle\FrameworkBundle\Controller\AbstractController;
 use Symfony\Component\HttpFoundation\Request;
@@ -20,7 +22,6 @@ class QuestionController extends AbstractController
     {
         $session = $request->getSession();
         $reponses = $session->get('reponses', []);
-        $questionWithReponse = $session->get('questions');
         $quizzId = $session->get('id');
         $quizzName = $session->get('name');
 
@@ -37,9 +38,6 @@ class QuestionController extends AbstractController
 
         // calculate the score
         foreach ($reponses as $reponse) {
-            $quizz = $entityManager->getRepository(Categorie::class)
-                ->find($reponse['categorie']);
-
             if ($reponse['user_reponse'] === $reponse['expected']) {
                 $score++;
             }
@@ -55,6 +53,7 @@ class QuestionController extends AbstractController
             $session->set('quesions', []);
             $session->set('id', '');
             $session->set('name', '');
+
             return $this->createUserHistories($user, $quizz, $reponses, $score, $total, $entityManager);
         } else {
             // get previous history of quizz for no connected users
@@ -64,7 +63,7 @@ class QuestionController extends AbstractController
                 'reponses' => $reponses,
                 'score' => $score,
                 'total' => $total,
-                'date' => new \DateTime(),
+                'date' => new DateTime(),
             ];
 
             // save the history and reset the reponses for the next quizz
@@ -89,7 +88,7 @@ class QuestionController extends AbstractController
         $_ = [
             'score' => $score,
             'total' => $total,
-            'date' => new \DateTimeImmutable(),
+            'date' => new DateTimeImmutable(),
             'quizz' => $quizz,
             'user' => $user,
             'reponses' => $reponses,
