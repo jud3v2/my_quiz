@@ -84,15 +84,13 @@ class CategorieController extends AbstractController
 
             // sauvegarde dans la session
             $session->set('reponses', $reponses);
+            $session->set('questions', $questionWithResponse);
+            $session->set('name', $categorie->getName());
+            $session->set('id', $categorie->getId());
 
             // on check si on est à la fin du quizz, si oui on redirect vers la page de résultat
             if ($nextQuestion > end($questionWithResponse)['question']->getId()) {
-                return $this->redirectToRoute('question.resultat', [
-                    'id' => $categorie->getId(),
-                    'reponses' => $reponses,
-                    'questions' => $questionWithResponse,
-                    'name' => $categorie->getName()
-                ], 307);
+                return $this->redirectToRoute('question.resultat');
             }
         }
 

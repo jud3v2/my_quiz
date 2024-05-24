@@ -15,11 +15,14 @@ use Symfony\Component\Routing\Attribute\Route;
 
 class QuestionController extends AbstractController
 {
-    #[Route('/resultat', name: 'question.resultat', methods: 'POST')]
+    #[Route('/resultat', name: 'question.resultat')]
     public function showResultat(Request $request, EntityManagerInterface $entityManager): Response
     {
         $session = $request->getSession();
         $reponses = $session->get('reponses', []);
+        $questionWithReponse = $session->get('questions');
+        $quizzId = $session->get('id');
+        $quizzName = $session->get('name');
 
         // check if we have a reponse session if not we will redirect to home with a info message to tell user the reponses are stored in history
         // because the session reponse has been cleared
@@ -28,7 +31,6 @@ class QuestionController extends AbstractController
             return $this->redirectToRoute('app_home');
         }
 
-        $quizzId = $reponses[0]['categorie'];
 
         $score = 0;
         $total = 0;
@@ -50,6 +52,9 @@ class QuestionController extends AbstractController
                 ->find($quizzId);
             // clear session reponses
             $session->set('reponses', []);
+            $session->set('quesions', []);
+            $session->set('id', '');
+            $session->set('name', '');
             return $this->createUserHistories($user, $quizz, $reponses, $score, $total, $entityManager);
         } else {
             // get previous history of quizz for no connected users
@@ -65,12 +70,15 @@ class QuestionController extends AbstractController
             // save the history and reset the reponses for the next quizz
             $session->set('history', $history);
             $session->set('reponses', []);
+            $session->set('quesions', []);
+            $session->set('id', '');
+            $session->set('name', '');
 
             return $this->render('question/resultat.html.twig', [
                 'score' => $score,
                 'total' => $total,
                 'quizzId' => $quizzId,
-                'name' => trim($quizz->getName()),
+                'name' => $quizzName,
                 'reponses' => $reponses,
             ]);
         }
