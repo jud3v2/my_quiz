@@ -1,0 +1,58 @@
+{
+    "app": {
+        "path": "\/assets\/app-47d58047819270b26cbe519a600bf4fa.js",
+        "type": "js"
+    },
+    "\/assets\/bootstrap.js": {
+        "path": "\/assets\/bootstrap-209b7ad405377c6efaf2dffd7b3feba1.js",
+        "type": "js"
+    },
+    "\/assets\/@symfony\/stimulus-bundle\/controllers.js": {
+        "path": "\/assets\/@symfony\/stimulus-bundle\/controllers-45e15333fb25734898e45bfcc064ab95.js",
+        "type": "js"
+    },
+    "\/assets\/@symfony\/ux-chartjs\/controller.js": {
+        "path": "\/assets\/@symfony\/ux-chartjs\/controller-32aab77f1215452e2153e84c17a7c2d6.js",
+        "type": "js"
+    },
+    "\/assets\/controllers\/hello_controller.js": {
+        "path": "\/assets\/controllers\/hello_controller-a1c635c2ffa41138c053b24842481f54.js",
+        "type": "js"
+    },
+    "\/assets\/styles\/app.css": {
+        "path": "\/assets\/styles\/app-c8ca30e2a184b0c1ddb36c7a7a22dc6e.css",
+        "type": "css"
+    },
+    "@hotwired\/stimulus": {
+        "path": "\/assets\/vendor\/@hotwired\/stimulus\/stimulus.index-b5b1d00e42695b8959b4a1e94e3bc92a.js",
+        "type": "js"
+    },
+    "@symfony\/stimulus-bundle": {
+        "path": "\/assets\/@symfony\/stimulus-bundle\/loader-e1ee9ace0562f2e6a52301e4ccc8627d.js",
+        "type": "js"
+    },
+    "@hotwired\/turbo": {
+        "path": "\/assets\/vendor\/@hotwired\/turbo\/turbo.index-810f44ef1a202a441e4866b7a4c72d11.js",
+        "type": "js"
+    },
+    "chart.js\/auto": {
+        "path": "\/assets\/vendor\/chart.js\/auto-f8d4d65420070575e53375a8f7a71f0f.js",
+        "type": "js"
+    },
+    "chartjs-plugin-zoom": {
+        "path": "\/assets\/vendor\/chartjs-plugin-zoom\/chartjs-plugin-zoom.index-07766590a8cb5e26ac62732218d9263c.js",
+        "type": "js"
+    },
+    "hammerjs": {
+        "path": "\/assets\/vendor\/hammerjs\/hammerjs.index-898c81d1ae7d2e542fb37fda90be158b.js",
+        "type": "js"
+    },
+    "chart.js\/helpers": {
+        "path": "\/assets\/vendor\/chart.js\/helpers-05e5a83406b9ecd9d624e8777a2c73f5.js",
+        "type": "js"
+    },
+    "@kurkle\/color": {
+        "path": "\/assets\/vendor\/@kurkle\/color\/color.index-369952e941f8e6ccfffaacf473e7171b.js",
+        "type": "js"
+    }
+}

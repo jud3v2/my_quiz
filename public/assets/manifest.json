@@ -1,0 +1,18 @@
+{
+    "@symfony\/stimulus-bundle\/controllers.js": "\/assets\/@symfony\/stimulus-bundle\/controllers-45e15333fb25734898e45bfcc064ab95.js",
+    "@symfony\/stimulus-bundle\/loader.js": "\/assets\/@symfony\/stimulus-bundle\/loader-e1ee9ace0562f2e6a52301e4ccc8627d.js",
+    "@symfony\/ux-chartjs\/controller.js": "\/assets\/@symfony\/ux-chartjs\/controller-32aab77f1215452e2153e84c17a7c2d6.js",
+    "@symfony\/ux-turbo\/turbo_controller.js": "\/assets\/@symfony\/ux-turbo\/turbo_controller-ce5e32dafdec0b7752f02e3e2cb25751.js",
+    "@symfony\/ux-turbo\/turbo_stream_controller.js": "\/assets\/@symfony\/ux-turbo\/turbo_stream_controller-a9d0d06c48318d35cc0e0aa27ef6b2dc.js",
+    "app.js": "\/assets\/app-47d58047819270b26cbe519a600bf4fa.js",
+    "bootstrap.js": "\/assets\/bootstrap-209b7ad405377c6efaf2dffd7b3feba1.js",
+    "controllers\/hello_controller.js": "\/assets\/controllers\/hello_controller-a1c635c2ffa41138c053b24842481f54.js",
+    "styles\/app.css": "\/assets\/styles\/app-c8ca30e2a184b0c1ddb36c7a7a22dc6e.css",
+    "vendor\/@hotwired\/stimulus\/stimulus.index.js": "\/assets\/vendor\/@hotwired\/stimulus\/stimulus.index-b5b1d00e42695b8959b4a1e94e3bc92a.js",
+    "vendor\/@hotwired\/turbo\/turbo.index.js": "\/assets\/vendor\/@hotwired\/turbo\/turbo.index-810f44ef1a202a441e4866b7a4c72d11.js",
+    "vendor\/@kurkle\/color\/color.index.js": "\/assets\/vendor\/@kurkle\/color\/color.index-369952e941f8e6ccfffaacf473e7171b.js",
+    "vendor\/chart.js\/auto.js": "\/assets\/vendor\/chart.js\/auto-f8d4d65420070575e53375a8f7a71f0f.js",
+    "vendor\/chart.js\/helpers.js": "\/assets\/vendor\/chart.js\/helpers-05e5a83406b9ecd9d624e8777a2c73f5.js",
+    "vendor\/chartjs-plugin-zoom\/chartjs-plugin-zoom.index.js": "\/assets\/vendor\/chartjs-plugin-zoom\/chartjs-plugin-zoom.index-07766590a8cb5e26ac62732218d9263c.js",
+    "vendor\/hammerjs\/hammerjs.index.js": "\/assets\/vendor\/hammerjs\/hammerjs.index-898c81d1ae7d2e542fb37fda90be158b.js"
+}
