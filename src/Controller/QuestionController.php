@@ -15,104 +15,104 @@ use Symfony\Component\Routing\Attribute\Route;
 
 class QuestionController extends AbstractController
 {
-        #[Route('/resultat', name: 'question.resultat')]
-        public function showResultat(Request $request, EntityManagerInterface $entityManager): Response
-        {
-                $session = $request->getSession();
-                $reponses = $session->get('reponses', []);
+    #[Route('/resultat', name: 'question.resultat', methods: 'POST')]
+    public function showResultat(Request $request, EntityManagerInterface $entityManager): Response
+    {
+        $session = $request->getSession();
+        $reponses = $session->get('reponses', []);
 
-                // check if we have a reponse session if not we will redirect to home with a info message to tell user the reponses are stored in history
-                // because the session reponse has been cleared
-                if (!$reponses) {
-                        $this->addFlash('info', "Veuillez vérifier votre historique les réponses y ont été stockées.");
-                        return $this->redirectToRoute('app_home');
-                }
-
-                $quizzId = $reponses[0]['categorie'];
-
-                $score = 0;
-                $total = 0;
-
-                // calculate the score
-                foreach ($reponses as $reponse) {
-                        $quizz = $entityManager->getRepository(Categorie::class)
-                            ->find($reponse['categorie']);
-
-                        if ($reponse['user_reponse'] === $reponse['expected']) {
-                                $score++;
-                        }
-
-                        $total++;
-                }
-
-                if ($user = $this->getUser()) {
-                        $quizz = $entityManager->getRepository(Categorie::class)
-                            ->find($quizzId);
-                        // clear session reponses
-                        $session->set('reponses', []);
-                        return $this->createUserHistories($user, $quizz, $reponses, $score, $total, $entityManager);
-                } else {
-                        // get previous history of quizz for no connected users
-                        $history = $session->get('history', []);
-
-                        $history[] = [
-                            'reponses' => $reponses,
-                            'score' => $score,
-                            'total' => $total,
-                            'date' => new \DateTime(),
-                        ];
-
-                        // save the history and reset the reponses for the next quizz
-                        $session->set('history', $history);
-                        $session->set('reponses', []);
-
-                        return $this->render('question/resultat.html.twig', [
-                            'score' => $score,
-                            'total' => $total,
-                            'quizzId' => $quizzId,
-                            'name' => trim($quizz->getName()),
-                            'reponses' => $reponses,
-                        ]);
-                }
+        // check if we have a reponse session if not we will redirect to home with a info message to tell user the reponses are stored in history
+        // because the session reponse has been cleared
+        if (!$reponses) {
+            $this->addFlash('info', "Veuillez vérifier votre historique les réponses y ont été stockées.");
+            return $this->redirectToRoute('app_home');
         }
 
-        private function createUserHistories(User $user, Categorie $quizz, array $reponses, int $score, int $total, EntityManagerInterface $em): Response
-        {
-                $_ = [
-                    'score' => $score,
-                    'total' => $total,
-                    'date' => new \DateTimeImmutable(),
-                    'quizz' => $quizz,
-                    'user' => $user,
-                    'reponses' => $reponses,
-                ];
+        $quizzId = $reponses[0]['categorie'];
 
-                $history = (new UserHistory())->fill($_);
+        $score = 0;
+        $total = 0;
 
-                $em->persist($history);
-                $em->flush();
+        // calculate the score
+        foreach ($reponses as $reponse) {
+            $quizz = $entityManager->getRepository(Categorie::class)
+                ->find($reponse['categorie']);
 
-                foreach ($_['reponses'] as $reponse) {
-                        $_reponse = [
-                            'user' => $user,
-                            'history' => $history,
-                            'question' => $em->getRepository(Question::class)
-                                ->find($reponse['question_id']),
-                            'answer' => $reponse['user_reponse'],
-                            'expected' => $reponse['expected'],
-                        ];
+            if ($reponse['user_reponse'] === $reponse['expected']) {
+                $score++;
+            }
 
-                        $reponseToBePersisted = (new UserReponse())->fill($_reponse);
-                        $em->persist($reponseToBePersisted);
-                        $em->flush();
-                }
-
-                return $this->render('question/resultat.html.twig', [
-                    'score' => $score,
-                    'total' => $total,
-                    'quizzId' => $quizz->getId(),
-                    'name' => trim($quizz->getName()),
-                    'reponses' => $reponses,
-                ]);
+            $total++;
         }
+
+        if ($user = $this->getUser()) {
+            $quizz = $entityManager->getRepository(Categorie::class)
+                ->find($quizzId);
+            // clear session reponses
+            $session->set('reponses', []);
+            return $this->createUserHistories($user, $quizz, $reponses, $score, $total, $entityManager);
+        } else {
+            // get previous history of quizz for no connected users
+            $history = $session->get('history', []);
+
+            $history[] = [
+                'reponses' => $reponses,
+                'score' => $score,
+                'total' => $total,
+                'date' => new \DateTime(),
+            ];
+
+            // save the history and reset the reponses for the next quizz
+            $session->set('history', $history);
+            $session->set('reponses', []);
+
+            return $this->render('question/resultat.html.twig', [
+                'score' => $score,
+                'total' => $total,
+                'quizzId' => $quizzId,
+                'name' => trim($quizz->getName()),
+                'reponses' => $reponses,
+            ]);
+        }
+    }
+
+    private function createUserHistories(User $user, Categorie $quizz, array $reponses, int $score, int $total, EntityManagerInterface $em): Response
+    {
+        $_ = [
+            'score' => $score,
+            'total' => $total,
+            'date' => new \DateTimeImmutable(),
+            'quizz' => $quizz,
+            'user' => $user,
+            'reponses' => $reponses,
+        ];
+
+        $history = (new UserHistory())->fill($_);
+
+        $em->persist($history);
+        $em->flush();
+
+        foreach ($_['reponses'] as $reponse) {
+            $_reponse = [
+                'user' => $user,
+                'history' => $history,
+                'question' => $em->getRepository(Question::class)
+                    ->find($reponse['question_id']),
+                'answer' => $reponse['user_reponse'],
+                'expected' => $reponse['expected'],
+            ];
+
+            $reponseToBePersisted = (new UserReponse())->fill($_reponse);
+            $em->persist($reponseToBePersisted);
+            $em->flush();
+        }
+
+        return $this->render('question/resultat.html.twig', [
+            'score' => $score,
+            'total' => $total,
+            'quizzId' => $quizz->getId(),
+            'name' => trim($quizz->getName()),
+            'reponses' => $reponses,
+        ]);
+    }
 }
