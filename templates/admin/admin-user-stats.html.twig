@@ -7,18 +7,56 @@
         <div
                 class="bg-zinc-50 px-6 py-20 text-center text-surface dark:bg-neutral-700 dark:text-white">
             <h1 class="mb-6 text-5xl font-bold">Administration gestion des stats de l'utilisateur {{ user.getUsername }}</h1>
+            <h3 class="mb-8 text-3xl font-bold">Vous pouvez consulter les résultats et les statistiques détaillés de l'utilisateur</h3>
         </div>
-        <div class="container mx-auto">
-            {{ render_chart(dayChart) }}
-        </div>
-        <div class="container mx-auto my-20">
-            {{ render_chart(weekChart) }}
-        </div>
-        <div class="container mx-auto my-20">
-            {{ render_chart(longWeekChart) }}
-        </div>
-        <div class="container mx-auto">
-            {{ render_chart(chart) }}
-        </div>
+        <div class="container mx-auto my-10">
+            <details>
+                <summary class="text-gray-500 font-bold mb-3">Historique de l'utilisateur</summary>
+                {% for h in history %}
+
+                    <div class="bg-zinc-50 px-6 py-20 text-center text-surface dark:bg-neutral-700 dark:text-white border rounded hover:shadow-sm my-3">
+                        <h1 class="mb-6 text-5xl font-bold text-gray-700">Quiz {{ h.quizz.name }}</h1>
+                        <h3 class="mb-8 text-3xl font-bold text-gray-700">Score: {{ h.score }} / {{ h.total }}</h3>
+                        <hr class="my-5">
+                        <h3 class="mb-8 text-3xl font-bold text-gray-700">Vos Réponses</h3>
+                        <div class="container mx-auto">
+                            <details>
+                                <summary class="text-gray-500 font-bold mb-3">Réponses apportées au quizz {{ h.quizz.name }}</summary>
+                                {% for reponse in h.getUserReponses %}
+                                    <div class="mb-3 border hover:shadow-sm rounded">
+                                        <h3 class="mb-3 text-3xl font-bold text-gray-700">{{ reponse.question.question }}</h3>
+                                        <p class="mb-3 text-xl font-bold {{ reponse.answer is same as reponse.expected ? 'text-green-500' : 'text-red-500' }}">Votre réponse: {{ reponse.answer }}</p>
+                                        <p class="mb-3 text-xl font-bold text-gray-600">Réponse attendue: {{ reponse.expected }}</p>
+                                    </div>
+                                {% endfor %}
+                            </details>
+                        </div>
+                    </div>
+
+                {% endfor %}
+
+                {% if history is empty %}
+                    <div class="bg-zinc-50 px-6 py-20 text-center text-surface dark:bg-neutral-700 dark:text-white border rounded hover:shadow-sm my-3">
+                        <h1 class="mb-6 text-5xl font-bold text-gray-700">Aucun historique</h1>
+                        <h3 class="mb-8 text-3xl font-bold text-gray-700">L'utilisateur n'a pas encore participé à un quiz</h3>
+                    </div>
+                {% endif %}
+            </details>
+
+            <details>
+                <summary class="text-gray-500 font-bold mb-3">Statistique détaillé de l'utilisateur</summary>
+                <div class="container mx-auto">
+                    {{ render_chart(dayChart) }}
+                </div>
+                <div class="container mx-auto my-20">
+                    {{ render_chart(weekChart) }}
+                </div>
+                <div class="container mx-auto my-20">
+                    {{ render_chart(longWeekChart) }}
+                </div>
+                <div class="container mx-auto">
+                    {{ render_chart(chart) }}
+                </div>
+            </details>
     </div>
 {% endblock %}

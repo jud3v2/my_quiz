@@ -8,6 +8,7 @@ use App\Entity\Question;
 use App\Entity\Reponse;
 use App\Entity\User;
 use App\Entity\UserHistory;
+use App\Entity\UserReponse;
 use App\Form\AdminCreateUserFormType;
 use App\Form\AdminUserFormType;
 use App\Security\EmailVerifier;
@@ -388,42 +389,42 @@ class AdminController extends AbstractController
                 $weeklyCounts = array_fill(1, 7, 0);
                 $dailyCounts = [
                     0 => 0,
-                        "01" => 0,
-                        "02" => 0,
-                        "03" => 0,
-                        "04" => 0,
-                        "05" => 0,
-                        "06" => 0,
-                        "07" => 0,
-                        "08" => 0,
-                        '09' => 0,
-                        10 => 0,
-                        11 => 0,
-                        12 => 0,
-                        13 => 0,
-                        14 => 0,
-                        15 => 0,
-                        16 => 0,
-                        17 => 0,
-                        18 => 0,
-                        19 => 0,
-                        20 => 0,
-                        21 => 0,
-                        22 => 0,
-                        23 => 0,
-                        24 => 0,
-                        "00" => 0
+                    "01" => 0,
+                    "02" => 0,
+                    "03" => 0,
+                    "04" => 0,
+                    "05" => 0,
+                    "06" => 0,
+                    "07" => 0,
+                    "08" => 0,
+                    '09' => 0,
+                    10 => 0,
+                    11 => 0,
+                    12 => 0,
+                    13 => 0,
+                    14 => 0,
+                    15 => 0,
+                    16 => 0,
+                    17 => 0,
+                    18 => 0,
+                    19 => 0,
+                    20 => 0,
+                    21 => 0,
+                    22 => 0,
+                    23 => 0,
+                    24 => 0,
+                    "00" => 0
                 ];
                 $longWeeklyCount = [
                     "01" => 0,
-                        "02" => 0,
-                        "03" => 0,
-                        "04" => 0,
-                        "05" => 0,
-                        "06" => 0,
-                        "07" => 0,
-                        "08" => 0,
-                        "09" => 0,
+                    "02" => 0,
+                    "03" => 0,
+                    "04" => 0,
+                    "05" => 0,
+                    "06" => 0,
+                    "07" => 0,
+                    "08" => 0,
+                    "09" => 0,
                 ];
 
                 $longWeeklyCount = array_merge(array_fill(10, 42, 0), $longWeeklyCount);
@@ -452,7 +453,7 @@ class AdminController extends AbstractController
                     'chart' => $this->yearChart($monthlyCounts, $cb),
                     'weekChart' => $this->weekChart($weeklyCounts, $cb),
                     'dayChart' => $this->dayChart($dailyCounts, $cb),
-                        'longWeekChart' => $this->longWeekChart($longWeeklyCount, $cb),
+                    'longWeekChart' => $this->longWeekChart($longWeeklyCount, $cb),
                 ]);
         }
 
@@ -500,14 +501,14 @@ class AdminController extends AbstractController
 
                 $chart->setData([
                     'labels' => ['Lundi', 'Mardi', 'Mercredi', 'Jeudi', 'Vendredi', 'Samedi', 'Dimanche'],
-                        'datasets' => [
-                            [
-                                'label' => 'Nombre de quizz effectué par jour de la semaine',
-                                'backgroundColor' => 'rgb(255, 99, 132)',
-                                'borderColor' => 'rgb(255, 99, 132)',
-                                'data' => array_values($wc),
-                            ],
+                    'datasets' => [
+                        [
+                            'label' => 'Nombre de quizz effectué par jour de la semaine',
+                            'backgroundColor' => 'rgb(255, 99, 132)',
+                            'borderColor' => 'rgb(255, 99, 132)',
+                            'data' => array_values($wc),
                         ],
+                    ],
                 ]);
 
                 $chart->setOptions([
@@ -559,10 +560,10 @@ class AdminController extends AbstractController
         {
                 $chart = $cb->createChart(Chart::TYPE_LINE);
 
-                $week = function () {
+                $week = function () use ($lwc) {
                         $w = [];
 
-                        for ($i = 1; $i <= 52; $i++) {
+                        for ($i = 1; $i <= count($lwc); $i++) {
                                 $w[] = 'Semaine' . $i;
                         }
 
@@ -647,7 +648,7 @@ class AdminController extends AbstractController
                     "09" => 0,
                 ];
 
-                $longWeeklyCount = array_merge(array_fill(10, 42, 0), $longWeeklyCount);
+                $longWeeklyCount = array_merge(array_fill(10, 43, 0), $longWeeklyCount);
 
                 foreach ($histories as $history) {
                         $month = $history->getCreatedAt()->format('n'); // Extract month as a number (1-12)
@@ -670,148 +671,12 @@ class AdminController extends AbstractController
                 }
 
                 return $this->render('admin/admin-user-stats.html.twig', [
-                    'chart' => $this->yearUserChart($monthlyCounts, $cb),
-                    'weekChart' => $this->weekUserChart($weeklyCounts, $cb),
-                    'dayChart' => $this->dayUserChart($dailyCounts, $cb),
-                    'longWeekChart' => $this->longWeekUserChart($longWeeklyCount, $cb),
-                    'user' => $user
+                    'chart' => $this->yearChart($monthlyCounts, $cb),
+                    'weekChart' => $this->weekChart($weeklyCounts, $cb),
+                    'dayChart' => $this->dayChart($dailyCounts, $cb),
+                    'longWeekChart' => $this->longWeekChart($longWeeklyCount, $cb),
+                    'user' => $user,
+                    'history' => $histories
                 ]);
-        }
-
-        /**
-         * @param array $mc
-         * @param \Symfony\UX\Chartjs\Builder\ChartBuilderInterface $cb
-         * @return \Symfony\UX\Chartjs\Model\Chart
-         */
-        private function yearUserChart(array $mc, ChartBuilderInterface $cb): Chart
-        {
-                $chart = $cb->createChart(Chart::TYPE_LINE);
-
-                $chart->setData([
-                    'labels' => ['Janvier', 'Février', 'Mars', 'Avril', 'Mai', 'Juin', 'Juillet', 'Août', 'Septembre', 'Octobre', 'Novembre', 'Décembre'],
-                    'datasets' => [
-                        [
-                            'label' => 'Nombre de quizz effectué sur l\'année',
-                            'backgroundColor' => 'rgb(255, 99, 132)',
-                            'borderColor' => 'rgb(255, 99, 132)',
-                            'data' => array_values($mc),
-                        ],
-                    ],
-                ]);
-
-                $chart->setOptions([
-                    'scales' => [
-                        'y' => [
-                            'suggestedMin' => 0,
-                            'suggestedMax' => 25,
-                        ],
-                    ]
-                ]);
-
-                return $chart;
-        }
-
-        /**
-         * @param array $wc
-         * @param \Symfony\UX\Chartjs\Builder\ChartBuilderInterface $cb
-         * @return \Symfony\UX\Chartjs\Model\Chart
-         */
-        public function weekUserChart(array $wc, ChartBuilderInterface $cb): Chart
-        {
-                $chart = $cb->createChart(Chart::TYPE_LINE);
-
-                $chart->setData([
-                    'labels' => ['Lundi', 'Mardi', 'Mercredi', 'Jeudi', 'Vendredi', 'Samedi', 'Dimanche'],
-                    'datasets' => [
-                        [
-                            'label' => 'Nombre de quizz effectué par jour de la semaine',
-                            'backgroundColor' => 'rgb(255, 99, 132)',
-                            'borderColor' => 'rgb(255, 99, 132)',
-                            'data' => array_values($wc),
-                        ],
-                    ],
-                ]);
-
-                $chart->setOptions([
-                    'scales' => [
-                        'y' => [
-                            'suggestedMin' => 0,
-                            'suggestedMax' => 25,
-                        ],
-                    ]
-                ]);
-
-                return $chart;
-        }
-
-        private function dayUserChart(array $dc, ChartBuilderInterface $cb): Chart
-        {
-                $chart = $cb->createChart(Chart::TYPE_LINE);
-
-                $chart->setData([
-                    'labels' => ['00h', '01h', '02h', '03h', '04h', '05h', '06h', '07h', '08h', '09h', '10h', '11h', '12h', '13h', '14h', '15h', '16h', '17h', '18h', '19h', '20h', '21h', '22h', '23h'],
-                    'datasets' => [
-                        [
-                            'label' => 'Nombre de quizz effectué ce jour heure par heure',
-                            'backgroundColor' => 'rgb(255, 99, 132)',
-                            'borderColor' => 'rgb(255, 99, 132)',
-                            'data' => array_values($dc),
-                        ],
-                    ],
-                ]);
-
-                $chart->setOptions([
-                    'scales' => [
-                        'y' => [
-                            'suggestedMin' => 0,
-                            'suggestedMax' => 25,
-                        ],
-                    ]
-                ]);
-
-                return $chart;
-        }
-
-        /**
-         * @param array $lwc
-         * @param \Symfony\UX\Chartjs\Builder\ChartBuilderInterface $cb
-         * @return \Symfony\UX\Chartjs\Model\Chart
-         */
-        private function longWeekUserChart(array $lwc, ChartBuilderInterface $cb): Chart
-        {
-                $chart = $cb->createChart(Chart::TYPE_LINE);
-
-                $week = function () {
-                        $w = [];
-
-                        for ($i = 1; $i <= 52; $i++) {
-                                $w[] = 'Semaine' . $i;
-                        }
-
-                        return $w;
-                };
-
-                $chart->setData([
-                    'labels' => $week(),
-                    'datasets' => [
-                        [
-                            'label' => 'Nombre de quizz effectué semaine par semaine',
-                            'backgroundColor' => 'rgb(255, 99, 132)',
-                            'borderColor' => 'rgb(255, 99, 132)',
-                            'data' => array_values($lwc),
-                        ],
-                    ],
-                ]);
-
-                $chart->setOptions([
-                    'scales' => [
-                        'y' => [
-                            'suggestedMin' => 0,
-                            'suggestedMax' => 25,
-                        ],
-                    ]
-                ]);
-
-                return $chart;
         }
 }
